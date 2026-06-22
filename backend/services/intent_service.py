@@ -14,10 +14,22 @@ class Intent(StrEnum):
     FALLBACK = "fallback"
 
 
+class MatchStrategy(StrEnum):
+    TYPO_ALIAS = "typo_alias"
+    ORDER_NUMBER = "order_number"
+    EXACT_PHRASE = "exact_phrase"
+    EXACT_KEYWORD = "exact_keyword"
+    FUZZY_KEYWORD = "fuzzy_keyword"
+    FALLBACK = "fallback"
+
+
 @dataclass(frozen=True)
 class IntentResult:
     intent: Intent
     matched_terms: tuple[str, ...] = ()
+    normalized_message: str = ""
+    match_strategy: MatchStrategy = MatchStrategy.FALLBACK
+    needs_review: bool = False
 
 
 INTENT_PHRASES: dict[Intent, tuple[str, ...]] = {
@@ -74,8 +86,6 @@ INTENT_KEYWORDS: dict[Intent, tuple[str, ...]] = {
     Intent.GRATITUDE: (
         "thanks",
         "thx",
-        "thanx",
-        "thnak",
     ),
     Intent.MAIN_MENU: (
         "hi",
@@ -134,6 +144,11 @@ INTENT_PRIORITY = (
     Intent.MAIN_MENU,
 )
 
+TYPO_ALIASES: dict[str, tuple[Intent, str]] = {
+    "thnak": (Intent.GRATITUDE, "thanks"),
+    "thanx": (Intent.GRATITUDE, "thanks"),
+}
+
 FUZZY_MATCH_CUTOFF = 0.8
 
 
@@ -175,29 +190,87 @@ def _fuzzy_keyword_matches(tokens: tuple[str, ...], intent: Intent) -> tuple[str
     return tuple(dict.fromkeys(matches))
 
 
+def _build_result(
+    intent: Intent,
+    normalized_message: str,
+    match_strategy: MatchStrategy,
+    matched_terms: tuple[str, ...] = (),
+) -> IntentResult:
+    return IntentResult(
+        intent=intent,
+        matched_terms=matched_terms,
+        normalized_message=normalized_message,
+        match_strategy=match_strategy,
+        needs_review=match_strategy in {
+            MatchStrategy.TYPO_ALIAS,
+            MatchStrategy.FUZZY_KEYWORD,
+            MatchStrategy.FALLBACK,
+        },
+    )
+
+
 def detect_intent(message: str) -> IntentResult:
     normalized_message = normalize_message(message)
     tokens = tokenize(message)
 
     if not normalized_message:
-        return IntentResult(intent=Intent.FALLBACK)
+        return _build_result(
+            intent=Intent.FALLBACK,
+            normalized_message=normalized_message,
+            match_strategy=MatchStrategy.FALLBACK,
+        )
 
     if _contains_order_number(tokens):
-        return IntentResult(intent=Intent.ORDER_TRACKING, matched_terms=("order_number",))
+        return _build_result(
+            intent=Intent.ORDER_TRACKING,
+            normalized_message=normalized_message,
+            match_strategy=MatchStrategy.ORDER_NUMBER,
+            matched_terms=("order_number",),
+        )
 
     for intent in INTENT_PRIORITY:
         phrase_matches = _exact_phrase_matches(normalized_message, intent)
         if phrase_matches:
-            return IntentResult(intent=intent, matched_terms=phrase_matches)
+            return _build_result(
+                intent=intent,
+                normalized_message=normalized_message,
+                match_strategy=MatchStrategy.EXACT_PHRASE,
+                matched_terms=phrase_matches,
+            )
 
     for intent in INTENT_PRIORITY:
         keyword_matches = _exact_keyword_matches(tokens, intent)
         if keyword_matches:
-            return IntentResult(intent=intent, matched_terms=keyword_matches)
+            return _build_result(
+                intent=intent,
+                normalized_message=normalized_message,
+                match_strategy=MatchStrategy.EXACT_KEYWORD,
+                matched_terms=keyword_matches,
+            )
+
+    for token in tokens:
+        typo_alias = TYPO_ALIASES.get(token)
+        if typo_alias:
+            intent, matched_term = typo_alias
+            return _build_result(
+                intent=intent,
+                normalized_message=normalized_message,
+                match_strategy=MatchStrategy.TYPO_ALIAS,
+                matched_terms=(matched_term,),
+            )
 
     for intent in INTENT_PRIORITY:
         fuzzy_matches = _fuzzy_keyword_matches(tokens, intent)
         if fuzzy_matches:
-            return IntentResult(intent=intent, matched_terms=fuzzy_matches)
+            return _build_result(
+                intent=intent,
+                normalized_message=normalized_message,
+                match_strategy=MatchStrategy.FUZZY_KEYWORD,
+                matched_terms=fuzzy_matches,
+            )
 
-    return IntentResult(intent=Intent.FALLBACK)
+    return _build_result(
+        intent=Intent.FALLBACK,
+        normalized_message=normalized_message,
+        match_strategy=MatchStrategy.FALLBACK,
+    )

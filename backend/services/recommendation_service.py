@@ -116,6 +116,28 @@ CATEGORY_SELECTIONS = {
     "weather protection": "Weather Protection",
 }
 
+DETAIL_STOP_WORDS = {
+    "a",
+    "an",
+    "and",
+    "better",
+    "do",
+    "else",
+    "for",
+    "get",
+    "have",
+    "i",
+    "like",
+    "need",
+    "no",
+    "some",
+    "the",
+    "to",
+    "want",
+    "what",
+    "you",
+}
+
 
 def _format_option_list(options: tuple[str, ...]) -> tuple[str, ...]:
     return tuple(f"{index}. {option}" for index, option in enumerate(options, start=1))
@@ -148,6 +170,11 @@ def _build_category_detail_prompt(category: str) -> RecommendationResult:
 
 
 def recommend_category_detail(category: str, message: str) -> RecommendationResult:
+    normalized_message = message.strip().lower()
+    selected_category = None if normalized_message.isdigit() else _parse_category_selection(message)
+    if selected_category is not None and selected_category != category:
+        return _build_category_detail_prompt(selected_category)
+
     options = CATEGORY_DETAIL_OPTIONS.get(category)
     if options is None:
         return RecommendationResult(
@@ -155,7 +182,11 @@ def recommend_category_detail(category: str, message: str) -> RecommendationResu
             message=f"For that trip, I recommend starting with our {category} category.",
         )
 
-    normalized_message = message.strip().lower()
+    meaningful_words = {
+        word
+        for word in normalized_message.split()
+        if len(word) > 2 and word not in DETAIL_STOP_WORDS
+    }
     selected_detail = None
     if normalized_message.isdigit():
         option_index = int(normalized_message) - 1
@@ -168,7 +199,7 @@ def recommend_category_detail(category: str, message: str) -> RecommendationResu
                 option
                 for option in options
                 if normalized_message in option.lower()
-                or any(word in option.lower() for word in normalized_message.split())
+                or any(word in option.lower() for word in meaningful_words)
             ),
             None,
         )

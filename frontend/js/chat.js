@@ -12,7 +12,7 @@ async function sendChatMessage(message) {
   try {
     const payload = await NorthStarApi.sendMessage(trimmed, chatState.conversation);
     chatState.conversation = payload.state || {};
-    NorthStarRender.addMessage("bot", payload.reply);
+    NorthStarRender.addMessage("bot", payload.reply, sendChatMessage);
     NorthStarRender.updateScenario(payload.intent);
     NorthStarRender.updateDebug(payload);
   } catch (error) {
@@ -40,7 +40,8 @@ function initChat() {
   });
   NorthStarRender.addMessage(
     "bot",
-    "Hi, I'm North Star customer support. What may I help you with?"
+    "Hi, I'm North Star customer support. What may I help you with?",
+    sendChatMessage
   );
   bindChatForm();
 }

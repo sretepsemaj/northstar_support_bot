@@ -5,7 +5,6 @@ from backend.chatbot.constants import (
     ACTIVE_FLOW,
     MAIN_MENU_FLOW,
     ORDER_NUMBER,
-    PRODUCT_RECOMMENDATION_FLOW,
     RECOMMENDATION_CATEGORY,
     RECOMMENDATION_CONTEXT,
     RECOMMENDATION_DETAIL,
@@ -25,7 +24,11 @@ from backend.chatbot.flows.recommendations import (
 )
 from backend.chatbot.flows.returns_exchange import build_returns_exchange_result
 from backend.services.intent_service import Intent, IntentResult, detect_intent
-from backend.services.llm_service import LLMAssistResult, review_ambiguous_message
+from backend.services.llm_service import (
+    LLMAssistResult,
+    is_llm_configured,
+    review_ambiguous_message,
+)
 from backend.services.order_service import normalize_order_number
 
 
@@ -40,6 +43,7 @@ class ChatServiceResult:
 
 def _build_metadata(
     intent_result: IntentResult,
+    llm_attempted: bool = False,
     intent_reviewed: bool = False,
     llm_category: str | None = None,
 ) -> dict[str, Any]:
@@ -47,6 +51,7 @@ def _build_metadata(
         "matched_terms": intent_result.matched_terms,
         "match_strategy": intent_result.match_strategy,
         "needs_review": intent_result.needs_review,
+        "llm_attempted": llm_attempted,
         "intent_reviewed": intent_reviewed,
     }
     if llm_category:
@@ -57,6 +62,7 @@ def _build_metadata(
 def _build_result(
     flow_result: tuple[str, Intent, dict[str, Any], bool],
     intent_result: IntentResult,
+    llm_attempted: bool = False,
     intent_reviewed: bool = False,
     llm_category: str | None = None,
 ) -> ChatServiceResult:
@@ -68,6 +74,7 @@ def _build_result(
         handoff=handoff,
         metadata=_build_metadata(
             intent_result,
+            llm_attempted=llm_attempted,
             intent_reviewed=intent_reviewed,
             llm_category=llm_category,
         ),
@@ -187,15 +194,21 @@ def handle_chat(message: str, state: dict[str, Any] | None = None) -> ChatServic
         return _build_result(build_handoff_result(), intent_result)
 
     if intent_result.intent == Intent.FALLBACK:
+        llm_attempted = is_llm_configured()
         assist = review_ambiguous_message(message)
         assist_result = _build_llm_assist_result(assist, message)
         if assist_result is not None:
             return _build_result(
                 assist_result,
                 intent_result,
+                llm_attempted=llm_attempted,
                 intent_reviewed=bool(assist and assist.used_llm),
                 llm_category=assist.category if assist else None,
             )
-        return _build_result(build_fallback_result(), intent_result)
+        return _build_result(
+            build_fallback_result(),
+            intent_result,
+            llm_attempted=llm_attempted,
+        )
 
     return _build_result(build_main_menu_result(), intent_result)

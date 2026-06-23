@@ -42,9 +42,16 @@ def build_recommendation_detail_result(
     message: str,
 ) -> tuple[str, Intent, dict[str, Any], bool]:
     recommendation = recommend_category_detail(category, message)
+    state: dict[str, Any] = {ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW}
+
+    if recommendation.needs_clarification:
+        state[WAITING_FOR] = RECOMMENDATION_DETAIL
+        if recommendation.category is not None:
+            state[RECOMMENDATION_CATEGORY] = recommendation.category
+
     return (
         format_recommendation_response(recommendation),
         Intent.PRODUCT_RECOMMENDATION,
-        {ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW},
+        state,
         False,
     )

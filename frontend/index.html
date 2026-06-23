@@ -4,20 +4,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>North Star Gear | Support Bot Demo</title>
-    <link rel="stylesheet" href="/static/css/base.css" />
-    <link rel="stylesheet" href="/static/css/storefront.css" />
-    <link rel="stylesheet" href="/static/css/support-widget.css" />
+    <script>
+      if ("scrollRestoration" in window.history) {
+        window.history.scrollRestoration = "manual";
+      }
+
+      window.scrollTo(0, 0);
+      window.addEventListener("pageshow", () => window.scrollTo(0, 0));
+      window.addEventListener("load", () => window.scrollTo(0, 0));
+    </script>
+    <link rel="stylesheet" href="/static/css/base.css?v=20260623-10" />
+    <link rel="stylesheet" href="/static/css/storefront.css?v=20260623-10" />
+    <link rel="stylesheet" href="/static/css/support-widget.css?v=20260623-10" />
   </head>
   <body>
     <header class="site-header">
-      <nav class="site-nav" aria-label="Demo navigation">
-        <a href="#demo">Support Bot Demo</a>
-        <a href="#categories">Gear Categories</a>
-      </nav>
-
       <div class="brand-stack" aria-label="North Star Gear">
-        <p class="eyebrow">Fictional outdoor shop</p>
-        <h1>North Star Gear</h1>
+        <h1>North Star Support Bot Demo</h1>
         <details class="response-details-nav">
           <summary>Response details</summary>
           <pre id="debug-output">No messages yet.</pre>
@@ -26,47 +29,11 @@
     </header>
 
     <main>
-      <section id="demo" class="storefront-hero">
-        <div class="hero-copy-block">
-          <p class="eyebrow">Trail-tested support experience</p>
-          <h2>Support Bot Demo</h2>
-          <p>
-            A simulated customer support chatbot for outdoor apparel and camping gear.
-            Open the support bubble to test order tracking, returns, product recommendations,
-            fallback handling, and human handoff.
-          </p>
-          <div class="hero-actions">
-            <span>Runs locally through FastAPI at <strong>/chat</strong></span>
-          </div>
-        </div>
-
-        <aside class="demo-card" aria-label="Demo coverage checklist">
-          <h3>Demo checklist</h3>
+      <section class="demo-layout" aria-label="Support bot demo overview">
+        <aside class="demo-card" aria-label="Demo coverage tracker">
+          <h2>Demo tracker</h2>
           <ul id="scenario-list" class="scenario-list"></ul>
         </aside>
-      </section>
-
-      <section id="categories" class="category-grid" aria-label="Featured gear categories">
-        <article>
-          <span>01</span>
-          <h3>Trail Layers</h3>
-          <p>Warm, breathable apparel for shoulder-season hikes and camp mornings.</p>
-        </article>
-        <article>
-          <span>02</span>
-          <h3>Camp Shelter</h3>
-          <p>Tents and sleep systems for weekends outside without overpacking.</p>
-        </article>
-        <article>
-          <span>03</span>
-          <h3>Hiking Footwear</h3>
-          <p>Stable boots and trail shoes for rocky routes, muddy paths, and long days.</p>
-        </article>
-        <article>
-          <span>04</span>
-          <h3>Weather Protection</h3>
-          <p>Rain shells and waterproof gear for shifting mountain conditions.</p>
-        </article>
       </section>
     </main>
 
@@ -83,7 +50,6 @@
       <header class="widget-header">
         <div>
           <p class="eyebrow">North Star customer support</p>
-          <h2>How can we help?</h2>
         </div>
         <button id="close-support" type="button" aria-label="Close support chat">Close</button>
       </header>
@@ -105,10 +71,10 @@
       </form>
     </section>
 
-    <script src="/static/js/scenarios.js"></script>
-    <script src="/static/js/api.js"></script>
-    <script src="/static/js/render.js"></script>
-    <script src="/static/js/support-widget.js"></script>
-    <script src="/static/js/chat.js"></script>
+    <script src="/static/js/scenarios.js?v=20260623-10"></script>
+    <script src="/static/js/api.js?v=20260623-10"></script>
+    <script src="/static/js/render.js?v=20260623-10"></script>
+    <script src="/static/js/support-widget.js?v=20260623-10"></script>
+    <script src="/static/js/chat.js?v=20260623-10"></script>
   </body>
 </html>

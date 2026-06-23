@@ -45,6 +45,11 @@ def _is_configured(settings: Settings) -> bool:
     )
 
 
+def is_llm_configured(settings: Settings | None = None) -> bool:
+    active_settings = settings or get_settings()
+    return _is_configured(active_settings)
+
+
 def _build_openai_messages(message: str) -> list[dict[str, str]]:
     allowed_categories = ", ".join(sorted(ALLOWED_RECOMMENDATION_CATEGORIES))
     allowed_intents = ", ".join(intent.value for intent in ALLOWED_LLM_INTENTS)

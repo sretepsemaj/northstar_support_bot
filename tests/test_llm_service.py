@@ -8,6 +8,7 @@ from backend.services.intent_service import Intent
 from backend.services.llm_service import (
     LLMAssistResult,
     build_recommendation_assist_result,
+    is_llm_configured,
     review_ambiguous_message,
 )
 
@@ -27,6 +28,7 @@ def test_review_ambiguous_message_returns_none_when_llm_is_disabled():
     result = review_ambiguous_message("I need raincoats", settings=BASE_SETTINGS)
 
     assert result is None
+    assert is_llm_configured(BASE_SETTINGS) is False
 
 
 def test_review_ambiguous_message_returns_none_when_llm_config_is_incomplete():
@@ -45,6 +47,8 @@ def test_review_ambiguous_message_uses_openai_adapter_when_configured(monkeypatc
         llm_model="gpt-4o-mini",
         llm_api_key="test-key",
     )
+
+    assert is_llm_configured(settings) is True
 
     class FakeResponse:
         def raise_for_status(self):

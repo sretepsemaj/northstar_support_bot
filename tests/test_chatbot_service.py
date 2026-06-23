@@ -29,6 +29,7 @@ def test_handle_chat_routes_greeting_to_main_menu():
     assert result.handoff is False
     assert result.metadata["match_strategy"] == MatchStrategy.EXACT_KEYWORD
     assert result.metadata["needs_review"] is False
+    assert result.metadata["llm_attempted"] is False
     assert result.metadata["intent_reviewed"] is False
 
 
@@ -150,6 +151,8 @@ def test_handle_chat_routes_gratitude_typo_to_polite_response_with_review_flag()
     assert "You're welcome" in result.reply
     assert result.state == {ACTIVE_FLOW: MAIN_MENU_FLOW}
     assert result.metadata["needs_review"] is True
+    assert result.metadata["llm_attempted"] is False
+    assert result.metadata["intent_reviewed"] is False
     assert result.handoff is False
 
 
@@ -182,6 +185,8 @@ def test_handle_chat_routes_unknown_message_to_fallback_menu():
     assert "live agent" in result.reply.lower()
     assert result.state == {ACTIVE_FLOW: MAIN_MENU_FLOW}
     assert result.metadata["needs_review"] is True
+    assert result.metadata["llm_attempted"] is False
+    assert result.metadata["intent_reviewed"] is False
     assert result.handoff is False
 
 
@@ -293,6 +298,26 @@ def test_recommendation_detail_selection_returns_final_recommendation():
     assert result.state == {ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW}
 
 
+def test_recommendation_detail_can_switch_to_new_category():
+    result = handle_chat(
+        "no better get a tent",
+        state={
+            ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+            WAITING_FOR: RECOMMENDATION_DETAIL,
+            RECOMMENDATION_CATEGORY: "Hiking Footwear",
+        },
+    )
+
+    assert result.intent == Intent.PRODUCT_RECOMMENDATION
+    assert "Camping Gear is a good fit" in result.reply
+    assert "Tents and shelters" in result.reply
+    assert result.state == {
+        ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+        WAITING_FOR: RECOMMENDATION_DETAIL,
+        RECOMMENDATION_CATEGORY: "Camping Gear",
+    }
+
+
 def test_general_help_question_routes_to_main_menu():
     result = handle_chat("what can I do here", state={})
 
@@ -315,6 +340,7 @@ def test_fallback_can_use_llm_assist_for_recommendation_category(monkeypatch):
         "backend.services.chatbot_service.review_ambiguous_message",
         fake_review_ambiguous_message,
     )
+    monkeypatch.setattr("backend.services.chatbot_service.is_llm_configured", lambda: True)
 
     result = handle_chat("I need raincoats", state={})
 
@@ -325,6 +351,7 @@ def test_fallback_can_use_llm_assist_for_recommendation_category(monkeypatch):
         WAITING_FOR: RECOMMENDATION_DETAIL,
         RECOMMENDATION_CATEGORY: "Weather Protection",
     }
+    assert result.metadata["llm_attempted"] is True
     assert result.metadata["intent_reviewed"] is True
     assert result.metadata["llm_category"] == "Weather Protection"
     assert result.handoff is False
@@ -339,10 +366,12 @@ def test_fallback_can_use_llm_assist_for_handoff(monkeypatch):
             used_llm=True,
         ),
     )
+    monkeypatch.setattr("backend.services.chatbot_service.is_llm_configured", lambda: True)
 
     result = handle_chat("this is not helping", state={})
 
     assert result.intent == Intent.HUMAN_HANDOFF
     assert result.state == {ACTIVE_FLOW: HUMAN_HANDOFF_FLOW}
+    assert result.metadata["llm_attempted"] is True
     assert result.metadata["intent_reviewed"] is True
     assert result.handoff is True

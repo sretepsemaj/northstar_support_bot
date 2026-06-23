@@ -58,6 +58,26 @@ def test_recommend_category_detail_returns_final_recommendation():
     assert "rain shells" in result.message.lower()
 
 
+def test_recommend_category_detail_can_switch_categories():
+    result = recommend_category_detail("Hiking Footwear", "no better get a tent")
+
+    assert result.category == "Camping Gear"
+    assert result.needs_clarification is True
+    assert result.waiting_for_detail is True
+    assert "Camping Gear is a good fit" in result.message
+    assert "Tents and shelters" in result.questions[0]
+
+
+def test_recommend_category_detail_ignores_weak_words_when_matching_options():
+    result = recommend_category_detail("Hiking Footwear", "what else do you have")
+
+    assert result.category == "Hiking Footwear"
+    assert result.needs_clarification is False
+    assert "Great choice" not in result.message
+    assert "It covers" in result.message
+    assert "Hiking boots" in result.message
+
+
 def test_recommend_category_does_not_invent_specific_products():
     result = recommend_category_detail("Camping Gear", "1")
 

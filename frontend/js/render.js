@@ -1,4 +1,6 @@
 window.NorthStarRender = {
+  optionPattern: /^\s*-?\s*(\d+)\.\s+(.+)$/gm,
+
   renderScenarios(scenarios, onSelect) {
     const list = document.querySelector("#scenario-list");
     const actions = document.querySelector("#quick-actions");
@@ -8,7 +10,7 @@ window.NorthStarRender = {
       .join("");
 
     actions.innerHTML = "";
-    scenarios.forEach((scenario) => {
+    scenarios.filter((scenario) => scenario.showQuickAction !== false).forEach((scenario) => {
       const button = document.createElement("button");
       button.type = "button";
       button.textContent = scenario.label;
@@ -17,11 +19,56 @@ window.NorthStarRender = {
     });
   },
 
-  addMessage(role, text) {
+  parseOptions(text) {
+    const options = [];
+    let match;
+
+    while ((match = this.optionPattern.exec(text)) !== null) {
+      options.push({
+        value: match[1],
+        label: match[2],
+        fullText: match[0],
+      });
+    }
+
+    this.optionPattern.lastIndex = 0;
+    return options;
+  },
+
+  stripOptions(text, options) {
+    return options.reduce(
+      (messageText, option) => messageText.replace(option.fullText, "").trim(),
+      text
+    );
+  },
+
+  addMessage(role, text, onOptionSelect) {
     const list = document.querySelector("#message-list");
     const message = document.createElement("div");
     message.className = `message ${role}`;
-    message.textContent = text;
+
+    const options = role === "bot" ? this.parseOptions(text) : [];
+    const messageText = options.length ? this.stripOptions(text, options) : text;
+
+    const content = document.createElement("p");
+    content.textContent = messageText;
+    message.appendChild(content);
+
+    if (options.length && typeof onOptionSelect === "function") {
+      const optionList = document.createElement("div");
+      optionList.className = "message-options";
+
+      options.forEach((option) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = `${option.value}. ${option.label}`;
+        button.addEventListener("click", () => onOptionSelect(option.value));
+        optionList.appendChild(button);
+      });
+
+      message.appendChild(optionList);
+    }
+
     list.appendChild(message);
     list.scrollTop = list.scrollHeight;
   },

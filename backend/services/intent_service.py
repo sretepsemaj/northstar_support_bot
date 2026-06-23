@@ -121,6 +121,8 @@ INTENT_KEYWORDS: dict[Intent, tuple[str, ...]] = {
         "hiking",
         "climbing",
         "waterproof",
+        "rain gear",
+        "raingear",
     ),
     Intent.ORDER_TRACKING: (
         "order",

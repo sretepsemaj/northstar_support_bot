@@ -350,6 +350,27 @@ def test_recommendation_detail_can_switch_to_new_category():
     }
 
 
+def test_recommendation_detail_asks_before_switching_on_context_modifier():
+    result = handle_chat(
+        "waterproof",
+        state={
+            ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+            WAITING_FOR: RECOMMENDATION_DETAIL,
+            RECOMMENDATION_CATEGORY: "Climbing Essentials",
+        },
+    )
+
+    assert result.intent == Intent.PRODUCT_RECOMMENDATION
+    assert "Weather Protection" in result.reply
+    assert "Climbing Essentials" in result.reply
+    assert "Switch to Weather Protection" in result.reply
+    assert result.state == {
+        ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+        WAITING_FOR: RECOMMENDATION_DETAIL,
+        RECOMMENDATION_CATEGORY: "Climbing Essentials",
+    }
+
+
 def test_recommendation_detail_unknown_reply_returns_to_category_menu_when_llm_is_off(monkeypatch):
     monkeypatch.setattr("backend.services.chatbot_service.is_llm_configured", lambda: False)
 

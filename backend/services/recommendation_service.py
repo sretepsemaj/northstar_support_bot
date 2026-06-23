@@ -51,6 +51,8 @@ CATEGORY_KEYWORDS = {
     },
     "Weather Protection": {
         "rain",
+        "rain gear",
+        "raingear",
         "raincoat",
         "raincoats",
         "snow",
@@ -116,6 +118,18 @@ CATEGORY_SELECTIONS = {
     "weather protection": "Weather Protection",
 }
 
+CONTEXT_MODIFIERS = {
+    "cold",
+    "durable",
+    "lightweight",
+    "rain",
+    "rugged",
+    "warm",
+    "waterproof",
+    "wet",
+    "wind",
+}
+
 DETAIL_STOP_WORDS = {
     "a",
     "an",
@@ -169,10 +183,37 @@ def _build_category_detail_prompt(category: str) -> RecommendationResult:
     )
 
 
+def _build_category_switch_prompt(
+    current_category: str,
+    suggested_category: str,
+) -> RecommendationResult:
+    return RecommendationResult(
+        category=current_category,
+        message=(
+            f"That sounds related to {suggested_category}, but we were narrowing "
+            f"{current_category}. Would you like to switch categories or keep going "
+            f"with {current_category}?"
+        ),
+        needs_clarification=True,
+        questions=(
+            f"Switch to {suggested_category}",
+            f"Keep narrowing {current_category}",
+        ),
+        waiting_for_detail=True,
+    )
+
+
+def _is_context_modifier(message: str) -> bool:
+    words = {word for word in message.split() if len(word) > 2}
+    return bool(words and words.issubset(CONTEXT_MODIFIERS))
+
+
 def recommend_category_detail(category: str, message: str) -> RecommendationResult:
     normalized_message = message.strip().lower()
     selected_category = None if normalized_message.isdigit() else _parse_category_selection(message)
     if selected_category is not None and selected_category != category:
+        if _is_context_modifier(normalized_message):
+            return _build_category_switch_prompt(category, selected_category)
         return _build_category_detail_prompt(selected_category)
 
     options = CATEGORY_DETAIL_OPTIONS.get(category)

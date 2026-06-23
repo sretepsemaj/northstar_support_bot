@@ -15,6 +15,8 @@ from backend.services.recommendation_service import (
         ("What should I get for rock climbing?", "Climbing Essentials"),
         ("I need something waterproof for rain", "Weather Protection"),
         ("I need a raincoat", "Weather Protection"),
+        ("I need raingear", "Weather Protection"),
+        ("I need rain gear", "Weather Protection"),
         ("weather protection for cold weather", "Weather Protection"),
         ("I need cold weather gear", "Outdoor Apparel"),
     ],
@@ -66,6 +68,20 @@ def test_recommend_category_detail_can_switch_categories():
     assert result.waiting_for_detail is True
     assert "Camping Gear is a good fit" in result.message
     assert "Tents and shelters" in result.questions[0]
+
+
+def test_recommend_category_detail_asks_before_switching_on_context_modifier():
+    result = recommend_category_detail("Climbing Essentials", "waterproof")
+
+    assert result.category == "Climbing Essentials"
+    assert result.needs_clarification is True
+    assert result.waiting_for_detail is True
+    assert "Weather Protection" in result.message
+    assert "Climbing Essentials" in result.message
+    assert result.questions == (
+        "Switch to Weather Protection",
+        "Keep narrowing Climbing Essentials",
+    )
 
 
 def test_recommend_category_detail_ignores_weak_words_when_matching_options():

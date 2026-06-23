@@ -83,10 +83,6 @@ INTENT_PHRASES: dict[Intent, tuple[str, ...]] = {
 }
 
 INTENT_KEYWORDS: dict[Intent, tuple[str, ...]] = {
-    Intent.GRATITUDE: (
-        "thanks",
-        "thx",
-    ),
     Intent.MAIN_MENU: (
         "hi",
         "hello",
@@ -95,12 +91,18 @@ INTENT_KEYWORDS: dict[Intent, tuple[str, ...]] = {
         "start",
         "menu",
     ),
-    Intent.HUMAN_HANDOFF: (
-        "human",
-        "person",
-        "agent",
-        "representative",
-        "someone",
+    Intent.PRODUCT_RECOMMENDATION: (
+        "recommend",
+        "recommendation",
+        "suggest",
+        "gear",
+        "tent",
+        "jacket",
+        "boots",
+        "camping",
+        "hiking",
+        "climbing",
+        "waterproof",
     ),
     Intent.ORDER_TRACKING: (
         "order",
@@ -120,28 +122,26 @@ INTENT_KEYWORDS: dict[Intent, tuple[str, ...]] = {
         "damaged",
         "defective",
     ),
-    Intent.PRODUCT_RECOMMENDATION: (
-        "recommend",
-        "recommendation",
-        "suggest",
-        "gear",
-        "tent",
-        "jacket",
-        "boots",
-        "camping",
-        "hiking",
-        "climbing",
-        "waterproof",
+    Intent.GRATITUDE: (
+        "thanks",
+        "thx",
+    ),
+    Intent.HUMAN_HANDOFF: (
+        "human",
+        "person",
+        "agent",
+        "representative",
+        "someone",
     ),
 }
 
 INTENT_PRIORITY = (
-    Intent.HUMAN_HANDOFF,
+    Intent.MAIN_MENU,
+    Intent.PRODUCT_RECOMMENDATION,
     Intent.ORDER_TRACKING,
     Intent.RETURNS_EXCHANGE,
-    Intent.PRODUCT_RECOMMENDATION,
     Intent.GRATITUDE,
-    Intent.MAIN_MENU,
+    Intent.HUMAN_HANDOFF,
 )
 
 TYPO_ALIASES: dict[str, tuple[Intent, str]] = {

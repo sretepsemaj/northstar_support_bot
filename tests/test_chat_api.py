@@ -43,6 +43,16 @@ def test_chat_endpoint_preserves_state_for_order_number_follow_up():
     assert payload["handoff"] is False
 
 
+def test_chat_endpoint_routes_shipping_question_to_policy_answer():
+    response = client.post("/chat", json={"message": "what are your shipping times?"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["intent"] == Intent.SHIPPING_INFO.value
+    assert "Standard (3-5 days)" in payload["reply"]
+    assert "Expedited (1-2 days)" in payload["reply"]
+
+
 def test_chat_endpoint_returns_validation_error_for_empty_message():
     response = client.post("/chat", json={"message": ""})
 

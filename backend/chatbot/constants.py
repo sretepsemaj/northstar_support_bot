@@ -5,6 +5,7 @@ MAIN_MENU_FLOW = "main_menu"
 PRODUCT_RECOMMENDATION_FLOW = "product_recommendation"
 ORDER_TRACKING_FLOW = "order_tracking"
 RETURNS_EXCHANGE_FLOW = "returns_exchange"
+SHIPPING_INFO_FLOW = "shipping_info"
 HUMAN_HANDOFF_FLOW = "human_handoff"
 
 RECOMMENDATION_CONTEXT = "recommendation_context"

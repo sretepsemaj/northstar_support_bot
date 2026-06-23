@@ -9,6 +9,7 @@ from backend.chatbot.constants import (
     RECOMMENDATION_CONTEXT,
     RECOMMENDATION_DETAIL,
     RETURNS_EXCHANGE_FLOW,
+    SHIPPING_INFO_FLOW,
     WAITING_FOR,
 )
 from backend.chatbot.responses.main_menu import MAIN_MENU_RESPONSE
@@ -108,6 +109,35 @@ def test_handle_chat_keeps_order_flow_active_for_invalid_order_number():
         WAITING_FOR: ORDER_NUMBER,
     }
     assert result.handoff is False
+
+
+def test_handle_chat_routes_shipping_question_to_shipping_policy():
+    result = handle_chat("how long is shipping?", state={})
+
+    assert result.intent == Intent.SHIPPING_INFO
+    assert "Standard (3-5 days)" in result.reply
+    assert "Expedited (1-2 days)" in result.reply
+    assert "order number" not in result.reply.lower()
+    assert result.state == {ACTIVE_FLOW: SHIPPING_INFO_FLOW}
+    assert result.handoff is False
+
+
+def test_handle_chat_routes_expedited_shipping_question_to_shipping_policy():
+    result = handle_chat("do you offer expedited shipping?", state={})
+
+    assert result.intent == Intent.SHIPPING_INFO
+    assert "Expedited (1-2 days)" in result.reply
+    assert result.state == {ACTIVE_FLOW: SHIPPING_INFO_FLOW}
+    assert result.handoff is False
+
+
+def test_handle_chat_keeps_order_number_shipping_question_in_order_tracking():
+    result = handle_chat("shipping update for order 222", state={})
+
+    assert result.intent == Intent.ORDER_TRACKING
+    assert "Order #222" in result.reply
+    assert "ship in 24 hours" in result.reply
+    assert result.state == {ACTIVE_FLOW: MAIN_MENU_FLOW}
 
 
 def test_handle_chat_routes_return_question_to_returns_policy():

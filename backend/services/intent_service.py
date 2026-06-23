@@ -8,6 +8,7 @@ class Intent(StrEnum):
     MAIN_MENU = "main_menu"
     PRODUCT_RECOMMENDATION = "product_recommendation"
     ORDER_TRACKING = "order_tracking"
+    SHIPPING_INFO = "shipping_info"
     RETURNS_EXCHANGE = "returns_exchange"
     GRATITUDE = "gratitude"
     HUMAN_HANDOFF = "human_handoff"
@@ -59,6 +60,17 @@ INTENT_PHRASES: dict[Intent, tuple[str, ...]] = {
         "track my package",
         "shipping status",
         "order status",
+    ),
+    Intent.SHIPPING_INFO: (
+        "how long is shipping",
+        "how long does shipping take",
+        "what are your shipping times",
+        "shipping times",
+        "shipping options",
+        "shipping speeds",
+        "standard shipping",
+        "expedited shipping",
+        "do you offer expedited shipping",
     ),
     Intent.RETURNS_EXCHANGE: (
         "return policy",
@@ -116,9 +128,13 @@ INTENT_KEYWORDS: dict[Intent, tuple[str, ...]] = {
         "tracking",
         "package",
         "shipment",
-        "shipping",
         "delivery",
         "delivered",
+    ),
+    Intent.SHIPPING_INFO: (
+        "shipping",
+        "standard",
+        "expedited",
     ),
     Intent.RETURNS_EXCHANGE: (
         "return",
@@ -144,6 +160,7 @@ INTENT_KEYWORDS: dict[Intent, tuple[str, ...]] = {
 INTENT_PRIORITY = (
     Intent.HUMAN_HANDOFF,
     Intent.ORDER_TRACKING,
+    Intent.SHIPPING_INFO,
     Intent.RETURNS_EXCHANGE,
     Intent.PRODUCT_RECOMMENDATION,
     Intent.GRATITUDE,

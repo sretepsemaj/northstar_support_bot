@@ -10,26 +10,22 @@ A short outline for the required 2-3 minute video demo.
 
 ## Scenario 1: Order Tracking
 
-Suggested prompt:
+Suggested prompts:
 
 ```text
 Track order #111
-```
-
-Show:
-
-- Bot recognizes order tracking.
-- Bot returns shipped status and arrival timing.
-
-Optional invalid order prompt:
-
-```text
+Where is order 222?
+Order status 333
 Track order #999
 ```
 
 Show:
 
-- Bot handles invalid order numbers clearly.
+- Bot recognizes order tracking variations.
+- `#111` returns shipped / arriving tomorrow.
+- `#222` returns processing / ships in 24 hours.
+- `#333` returns delivered with a follow-up.
+- Invalid order numbers are handled clearly.
 
 ## Scenario 2: Returns & Exchanges
 
@@ -44,7 +40,22 @@ Show:
 - Bot explains the 30-day return policy.
 - Bot includes the returns link.
 
-## Scenario 3: Product Recommendations
+## Scenario 3: Shipping Policy
+
+Suggested prompt:
+
+```text
+How long is shipping?
+```
+
+Show:
+
+- Bot answers from provided shipping data.
+- Standard shipping is `3-5 days`.
+- Expedited shipping is `1-2 days`.
+- Bot does not ask for an order number for a generic shipping-policy question.
+
+## Scenario 4: Product Recommendations
 
 Suggested prompt:
 
@@ -59,7 +70,7 @@ Show:
 - Bot asks a category-specific follow-up.
 - Bot recommends a product category without inventing specific products.
 
-## Scenario 4: Human Handoff
+## Scenario 5: Human Handoff
 
 Suggested prompt:
 
@@ -71,7 +82,7 @@ Show:
 
 - Bot transitions to live agent / human support state.
 
-## Scenario 5: Fallback Handling
+## Scenario 6: Fallback Handling
 
 Suggested prompt:
 

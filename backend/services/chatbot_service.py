@@ -23,6 +23,7 @@ from backend.chatbot.flows.recommendations import (
     build_recommendation_result,
 )
 from backend.chatbot.flows.returns_exchange import build_returns_exchange_result
+from backend.chatbot.flows.shipping import build_shipping_result
 from backend.services.intent_service import Intent, IntentResult, detect_intent
 from backend.services.llm_service import (
     LLMAssistResult,
@@ -140,6 +141,9 @@ def _build_llm_assist_result(
     if assist.intent == Intent.ORDER_TRACKING:
         return build_order_tracking_result(message)
 
+    if assist.intent == Intent.SHIPPING_INFO:
+        return build_shipping_result()
+
     if assist.intent == Intent.RETURNS_EXCHANGE:
         return build_returns_exchange_result(message)
 
@@ -203,6 +207,9 @@ def handle_chat(message: str, state: dict[str, Any] | None = None) -> ChatServic
 
     if intent_result.intent == Intent.ORDER_TRACKING:
         return _build_result(build_order_tracking_result(message), intent_result)
+
+    if intent_result.intent == Intent.SHIPPING_INFO:
+        return _build_result(build_shipping_result(), intent_result)
 
     if intent_result.intent == Intent.RETURNS_EXCHANGE:
         return _build_result(build_returns_exchange_result(message), intent_result)

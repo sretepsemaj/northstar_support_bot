@@ -15,6 +15,9 @@ from backend.services.intent_service import (
         ("Track my package", Intent.ORDER_TRACKING),
         ("My order is 111", Intent.ORDER_TRACKING),
         ("#222", Intent.ORDER_TRACKING),
+        ("how long is shipping?", Intent.SHIPPING_INFO),
+        ("do you offer expedited shipping?", Intent.SHIPPING_INFO),
+        ("what are your shipping times?", Intent.SHIPPING_INFO),
         ("I want to return this jacket", Intent.RETURNS_EXCHANGE),
         ("Can I exchange this?", Intent.RETURNS_EXCHANGE),
         ("What tent should I buy?", Intent.PRODUCT_RECOMMENDATION),
@@ -106,6 +109,12 @@ def test_business_intent_takes_priority_over_gratitude():
     result = detect_intent("thanks, I need to return this")
 
     assert result.intent == Intent.RETURNS_EXCHANGE
+
+
+def test_order_number_takes_priority_over_generic_shipping_words():
+    result = detect_intent("shipping update for order 222")
+
+    assert result.intent == Intent.ORDER_TRACKING
 
 
 @pytest.mark.parametrize("message", ["asdf banana moon", "", "   "])

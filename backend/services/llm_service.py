@@ -20,6 +20,7 @@ ALLOWED_LLM_INTENTS = {
     Intent.MAIN_MENU,
     Intent.PRODUCT_RECOMMENDATION,
     Intent.ORDER_TRACKING,
+    Intent.SHIPPING_INFO,
     Intent.RETURNS_EXCHANGE,
     Intent.GRATITUDE,
     Intent.HUMAN_HANDOFF,
@@ -64,7 +65,8 @@ def _build_openai_messages(message: str) -> list[dict[str, str]]:
                 f"Allowed recommendation categories: {allowed_categories}. "
                 "Use product_recommendation for shopping, gear, apparel, boots, jackets, "
                 "rainwear, camping, hiking, climbing, tents, sleeping bags, or outdoor products. "
-                "Use order_tracking for shipping, arrival, package, delivery, or order status. "
+                "Use order_tracking for order-specific shipment, arrival, package, delivery, or order status questions. "
+                "Use shipping_info for generic shipping policy, standard shipping, expedited shipping, or shipping time questions. "
                 "Use returns_exchange for returns, exchanges, refunds, or return policy. "
                 "Use human_handoff only for explicit human/live agent requests or clear frustration. "
                 "Use fallback for unrelated messages. "

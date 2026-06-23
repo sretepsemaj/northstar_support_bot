@@ -1,42 +1,16 @@
-.PHONY: preflight setup demo test clean
+.PHONY: setup demo test clean
 
-preflight:
+setup:
 	@command -v python3 >/dev/null 2>&1 || { \
-		echo "Python 3 is required but was not found."; \
-		echo "Install Python 3, then rerun:"; \
-		echo "  make setup"; \
+		echo "Python 3 is required. See README.md Prerequisites."; \
 		exit 1; \
 	}
-	@python3 -c "import venv" >/dev/null 2>&1 || { \
-		echo "Python venv support is missing."; \
-		echo "Install Python virtual environment support for your operating system, then retry:"; \
-		echo "  rm -rf .venv"; \
-		echo "  make setup"; \
-		echo "On Ubuntu/Debian, this is usually:"; \
-		echo "  sudo apt update"; \
-		echo "  sudo apt install -y python3-venv python3-pip make"; \
-		echo "If your system uses Python 3.12 packages:"; \
-		echo "  sudo apt install -y python3.12-venv python3-pip make"; \
-		exit 1; \
-	}
-	@tmp_dir=$$(mktemp -d 2>/dev/null || mktemp -d -t northstar-venv); \
-	if ! python3 -m venv "$$tmp_dir" >/dev/null 2>&1; then \
-		rm -rf "$$tmp_dir"; \
-		echo "Python virtual environment creation failed."; \
-		echo "Install Python virtual environment support for your operating system, then retry:"; \
-		echo "  rm -rf .venv"; \
-		echo "  make setup"; \
-		echo "On Ubuntu/Debian, this is usually:"; \
-		echo "  sudo apt update"; \
-		echo "  sudo apt install -y python3-venv python3-pip make"; \
-		echo "If your system uses Python 3.12 packages:"; \
-		echo "  sudo apt install -y python3.12-venv python3-pip make"; \
-		exit 1; \
-	fi; \
-	rm -rf "$$tmp_dir"
-
-setup: preflight
-	@if [ ! -d .venv ]; then python3 -m venv .venv; fi
+	@if [ ! -x .venv/bin/pip ]; then \
+		python3 -m venv .venv || { \
+			echo "Could not create .venv. See README.md Prerequisites, then retry: rm -rf .venv && make setup"; \
+			exit 1; \
+		}; \
+	fi
 	.venv/bin/pip install -r requirements.txt
 
 demo:

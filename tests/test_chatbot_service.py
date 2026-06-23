@@ -173,3 +173,85 @@ def test_handle_chat_routes_unknown_message_to_fallback_menu():
     assert result.state == {ACTIVE_FLOW: MAIN_MENU_FLOW}
     assert result.metadata["needs_review"] is True
     assert result.handoff is False
+
+
+def test_waiting_for_order_number_allows_handoff_escape():
+    result = handle_chat(
+        "live agent",
+        state={ACTIVE_FLOW: ORDER_TRACKING_FLOW, WAITING_FOR: ORDER_NUMBER},
+    )
+
+    assert result.intent == Intent.HUMAN_HANDOFF
+    assert result.state == {ACTIVE_FLOW: HUMAN_HANDOFF_FLOW}
+    assert result.handoff is True
+
+
+def test_waiting_for_order_number_allows_help_escape_to_main_menu():
+    result = handle_chat(
+        "help",
+        state={ACTIVE_FLOW: ORDER_TRACKING_FLOW, WAITING_FOR: ORDER_NUMBER},
+    )
+
+    assert result.intent == Intent.MAIN_MENU
+    assert result.state == {ACTIVE_FLOW: MAIN_MENU_FLOW}
+    assert result.handoff is False
+
+
+def test_waiting_for_order_number_allows_return_question_escape():
+    result = handle_chat(
+        "can I return my item",
+        state={ACTIVE_FLOW: ORDER_TRACKING_FLOW, WAITING_FOR: ORDER_NUMBER},
+    )
+
+    assert result.intent == Intent.RETURNS_EXCHANGE
+    assert "30 days" in result.reply
+    assert result.state == {ACTIVE_FLOW: RETURNS_EXCHANGE_FLOW}
+
+
+def test_waiting_for_order_number_allows_recommendation_escape():
+    result = handle_chat(
+        "I need boots",
+        state={ACTIVE_FLOW: ORDER_TRACKING_FLOW, WAITING_FOR: ORDER_NUMBER},
+    )
+
+    assert result.intent == Intent.PRODUCT_RECOMMENDATION
+    assert "Hiking Footwear" in result.reply
+    assert result.state == {ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW}
+
+
+def test_main_menu_option_three_routes_to_product_recommendations():
+    result = handle_chat("3", state={ACTIVE_FLOW: MAIN_MENU_FLOW})
+
+    assert result.intent == Intent.PRODUCT_RECOMMENDATION
+    assert "couple quick questions" in result.reply
+    assert result.state == {
+        ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+        WAITING_FOR: RECOMMENDATION_CONTEXT,
+    }
+
+
+def test_shopping_question_routes_to_product_recommendations():
+    result = handle_chat("what stuff can I get here", state={})
+
+    assert result.intent == Intent.PRODUCT_RECOMMENDATION
+    assert "couple quick questions" in result.reply
+
+
+def test_purchase_question_with_typo_routes_to_product_recommendations():
+    result = handle_chat("what can I purchase ehre", state={})
+
+    assert result.intent == Intent.PRODUCT_RECOMMENDATION
+    assert "couple quick questions" in result.reply
+
+
+def test_general_help_question_routes_to_main_menu():
+    result = handle_chat("what can I do here", state={})
+
+    assert result.intent == Intent.MAIN_MENU
+    assert "1. Order Tracking" in result.reply
+
+
+def test_fallback_response_includes_closed_live_agent_quote():
+    result = handle_chat("random moon banana", state={})
+
+    assert 'say "live agent."' in result.reply

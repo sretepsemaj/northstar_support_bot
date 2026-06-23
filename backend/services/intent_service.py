@@ -35,12 +35,18 @@ class IntentResult:
 INTENT_PHRASES: dict[Intent, tuple[str, ...]] = {
     Intent.MAIN_MENU: (
         "what can you do",
+        "what can i do here",
         "what can you help with",
         "main menu",
         "show me options",
     ),
     Intent.PRODUCT_RECOMMENDATION: (
         "what should i buy",
+        "what can i buy",
+        "what can i purchase",
+        "what stuff can i get",
+        "what do you sell",
+        "what gear do you have",
         "help me choose",
         "what do you recommend",
         "recommend a",

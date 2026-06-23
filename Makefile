@@ -1,4 +1,4 @@
-.PHONY: setup demo test clean doctor
+.PHONY: setup setup-uv demo demo-uv test test-uv clean doctor
 
 setup:
 	@command -v python3 >/dev/null 2>&1 || { \
@@ -15,17 +15,32 @@ setup:
 			echo "  sudo apt update && sudo apt install -y python3 python3-venv python3-pip make"; \
 			echo "  rm -rf .venv && make setup"; \
 			echo ""; \
-			echo "If sudo is not available but uv is installed, see README.md for the uv fallback."; \
+			echo "If sudo is not available but uv is installed, run:"; \
+			echo "  rm -rf .venv && make setup-uv"; \
 			exit 1; \
 		}; \
 	fi
 	.venv/bin/pip install -r requirements.txt
 
+setup-uv:
+	@command -v uv >/dev/null 2>&1 || { \
+		echo "uv is required for setup-uv. Install uv or use make setup."; \
+		exit 1; \
+	}
+	@if [ ! -x .venv/bin/python ]; then uv venv .venv; fi
+	uv pip install --python .venv/bin/python -r requirements.txt
+
 demo:
 	.venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 8000
 
+demo-uv:
+	.venv/bin/python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
+
 test:
 	.venv/bin/pytest
+
+test-uv:
+	.venv/bin/python -m pytest
 
 doctor:
 	@echo "Checking startup prerequisites..."

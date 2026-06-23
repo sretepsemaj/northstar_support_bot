@@ -118,18 +118,26 @@ make demo
 
 ## No-Sudo Fallback With uv
 
-If system Python cannot create a virtual environment and you already have `uv` installed, you can run the project without sudo:
+If system Python cannot create a virtual environment and you already have `uv` installed, you can still use Makefile targets without sudo:
 
 ```bash
-uv venv .venv
-uv pip install --python .venv/bin/python -r requirements.txt
-.venv/bin/python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
+rm -rf .venv
+make setup-uv
+make demo-uv
 ```
 
 Run tests with:
 
 ```bash
-.venv/bin/python -m pytest
+make test-uv
+```
+
+Manual `uv` equivalent:
+
+```bash
+uv venv .venv
+uv pip install --python .venv/bin/python -r requirements.txt
+.venv/bin/python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
 ## Environment Variables

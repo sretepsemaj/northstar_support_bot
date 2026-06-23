@@ -1,0 +1,226 @@
+.site-header {
+  display: grid;
+  grid-template-columns: minmax(18rem, auto) 1fr;
+  align-items: start;
+  gap: 2rem;
+  padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 4vw, 4rem);
+  color: var(--paper);
+}
+
+.site-nav {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.site-nav a,
+.response-details-nav summary {
+  border: 1px solid rgba(255, 250, 240, 0.26);
+  border-radius: 999px;
+  padding: 0.55rem 0.85rem;
+  color: var(--paper);
+  text-decoration: none;
+  background: rgba(255, 250, 240, 0.08);
+}
+
+.brand-stack {
+  grid-column: 1;
+  grid-row: 1;
+  text-align: left;
+}
+
+.brand-stack h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.07em;
+}
+
+.response-details-nav {
+  position: relative;
+  margin-top: 0.9rem;
+}
+
+.response-details-nav summary {
+  display: inline-block;
+  list-style: none;
+  color: var(--pine);
+  background: var(--gold);
+}
+
+.response-details-nav summary::-webkit-details-marker {
+  display: none;
+}
+
+.response-details-nav pre {
+  position: absolute;
+  left: 0;
+  z-index: 5;
+  width: min(34rem, 88vw);
+  max-height: 22rem;
+  overflow: auto;
+  margin: 0.7rem 0 0;
+  border: 1px solid rgba(255, 250, 240, 0.18);
+  border-radius: 1rem;
+  padding: 1rem;
+  text-align: left;
+  color: #dff0d8;
+  background: #17251f;
+  box-shadow: var(--shadow);
+}
+
+.storefront-hero {
+  display: grid;
+  grid-template-columns: minmax(18rem, 1fr) minmax(18rem, 0.55fr);
+  gap: 2rem;
+  min-height: 55vh;
+  padding: clamp(1rem, 4vw, 4rem);
+}
+
+.hero-copy-block,
+.demo-card,
+.category-grid article {
+  border: 1px solid rgba(255, 250, 240, 0.32);
+  border-radius: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.hero-copy-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(1.5rem, 5vw, 4rem);
+  color: var(--paper);
+  background: rgba(15, 45, 35, 0.8);
+  backdrop-filter: blur(16px);
+}
+
+.hero-copy-block h2 {
+  max-width: 11ch;
+  margin: 0;
+  font-size: clamp(3rem, 9vw, 7rem);
+  line-height: 0.9;
+  letter-spacing: -0.08em;
+}
+
+.hero-copy-block p:not(.eyebrow) {
+  max-width: 42rem;
+  color: rgba(255, 250, 240, 0.84);
+  font-size: 1.08rem;
+  line-height: 1.65;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.hero-actions button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.9rem 1.15rem;
+  color: var(--paper);
+  background: var(--trail);
+  font-weight: 700;
+}
+
+.hero-actions span {
+  color: rgba(255, 250, 240, 0.78);
+}
+
+.demo-card {
+  align-self: end;
+  padding: 1.25rem;
+  color: var(--paper);
+  background: rgba(255, 250, 240, 0.1);
+  backdrop-filter: blur(12px);
+}
+
+.demo-card h3 {
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+}
+
+.scenario-list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scenario-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: rgba(255, 250, 240, 0.88);
+}
+
+.scenario-list span {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 0 clamp(1rem, 4vw, 4rem) 8rem;
+}
+
+.category-grid article {
+  min-height: 14rem;
+  padding: 1.2rem;
+  background: rgba(255, 250, 240, 0.92);
+}
+
+.category-grid span {
+  color: var(--trail);
+  font-weight: 700;
+}
+
+.category-grid h3 {
+  margin: 3rem 0 0.6rem;
+  font-size: 1.4rem;
+}
+
+.category-grid p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .site-header,
+  .storefront-hero,
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-stack,
+  .site-nav {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .site-nav {
+    justify-content: flex-start;
+  }
+
+  .brand-stack {
+    text-align: left;
+  }
+
+  .response-details-nav pre {
+    left: 0;
+  }
+
+  .category-grid {
+    padding-bottom: 9rem;
+  }
+}

@@ -1,11 +1,11 @@
-.PHONY: setup run test clean
+.PHONY: setup demo test clean
 
 setup:
 	@if [ ! -d .venv ]; then python3 -m venv .venv; fi
 	.venv/bin/pip install -r requirements.txt
 
-run:
-	.venv/bin/python backend/main.py
+demo:
+	.venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 8000
 
 test:
 	.venv/bin/pytest

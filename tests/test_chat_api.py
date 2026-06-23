@@ -47,3 +47,13 @@ def test_chat_endpoint_returns_validation_error_for_empty_message():
     response = client.post("/chat", json={"message": ""})
 
     assert response.status_code == 422
+
+
+def test_root_serves_frontend_chat_ui():
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert "North Star Gear" in response.text
+    assert "/static/js/support-widget.js" in response.text
+    assert "/static/css/storefront.css" in response.text

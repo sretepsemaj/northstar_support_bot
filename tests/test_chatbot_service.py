@@ -61,6 +61,41 @@ def test_handle_chat_asks_clarifying_questions_for_vague_recommendation():
     assert result.handoff is False
 
 
+def test_recommendation_category_prompt_routes_nonsense_to_fallback():
+    result = handle_chat(
+        "dfadsfdsa",
+        state={
+            ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+            WAITING_FOR: RECOMMENDATION_CONTEXT,
+        },
+    )
+
+    assert result.intent == Intent.FALLBACK
+    assert "didn't quite catch" in result.reply
+    assert "1. Order Tracking" in result.reply
+    assert result.state == {ACTIVE_FLOW: MAIN_MENU_FLOW}
+    assert result.handoff is False
+
+
+def test_recommendation_category_prompt_accepts_raincoat_language():
+    result = handle_chat(
+        "raincoat",
+        state={
+            ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+            WAITING_FOR: RECOMMENDATION_CONTEXT,
+        },
+    )
+
+    assert result.intent == Intent.PRODUCT_RECOMMENDATION
+    assert "Weather Protection is a good fit" in result.reply
+    assert result.state == {
+        ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+        WAITING_FOR: RECOMMENDATION_DETAIL,
+        RECOMMENDATION_CATEGORY: "Weather Protection",
+    }
+    assert result.handoff is False
+
+
 def test_handle_chat_prompts_for_order_number_when_tracking_request_has_no_number():
     result = handle_chat("Where is my order?", state={})
 

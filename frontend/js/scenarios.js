@@ -1,5 +1,5 @@
 window.NORTH_STAR_SCENARIOS = [
-  { id: "orders", label: "Order Tracking", prompt: "Track order #111" },
+  { id: "orders", label: "Order Tracking", prompt: "I need to track my order" },
   { id: "returns", label: "Returns & Exchanges", prompt: "I want to return this jacket" },
   { id: "recommendations", label: "Product Recommendations", prompt: "I need a recommendation" },
   {

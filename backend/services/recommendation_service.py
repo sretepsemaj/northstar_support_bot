@@ -51,6 +51,8 @@ CATEGORY_KEYWORDS = {
     },
     "Weather Protection": {
         "rain",
+        "rain coat",
+        "rain coats",
         "rain gear",
         "raingear",
         "raincoat",

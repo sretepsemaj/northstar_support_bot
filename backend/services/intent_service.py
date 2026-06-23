@@ -52,6 +52,8 @@ INTENT_PHRASES: dict[Intent, tuple[str, ...]] = {
         "what do you recommend",
         "recommend a",
         "suggest a",
+        "rain coat",
+        "rain coats",
     ),
     Intent.ORDER_TRACKING: (
         "where is my order",
@@ -123,6 +125,8 @@ INTENT_KEYWORDS: dict[Intent, tuple[str, ...]] = {
         "waterproof",
         "rain gear",
         "raingear",
+        "raincoat",
+        "raincoats",
     ),
     Intent.ORDER_TRACKING: (
         "order",

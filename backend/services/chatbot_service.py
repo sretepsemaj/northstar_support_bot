@@ -119,6 +119,25 @@ def _build_menu_selection_result(message: str) -> tuple[str, Intent, dict[str, A
     return None
 
 
+def _is_recommendation_category_selection(message: str) -> bool:
+    return message.strip().lower() in {
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "camping",
+        "camping gear",
+        "outdoor apparel",
+        "apparel",
+        "hiking footwear",
+        "footwear",
+        "climbing",
+        "climbing essentials",
+        "weather protection",
+    }
+
+
 def _build_llm_assist_result(
     assist: LLMAssistResult | None,
     message: str,
@@ -164,11 +183,14 @@ def handle_chat(message: str, state: dict[str, Any] | None = None) -> ChatServic
     if _is_waiting_for_order_number(state) and _should_handle_order_number_reply(message, intent_result):
         return _build_result(build_order_lookup_result(message), intent_result)
 
-    if _is_waiting_for_recommendation_context(state) and intent_result.intent in {
-        Intent.PRODUCT_RECOMMENDATION,
-        Intent.FALLBACK,
-    }:
+    if _is_waiting_for_recommendation_context(state) and (
+        intent_result.intent == Intent.PRODUCT_RECOMMENDATION
+        or _is_recommendation_category_selection(message)
+    ):
         return _build_result(build_recommendation_result(message), intent_result)
+
+    if _is_waiting_for_recommendation_context(state) and intent_result.intent == Intent.FALLBACK:
+        return _build_result(build_fallback_result(), intent_result)
 
     if _is_waiting_for_recommendation_detail(state) and intent_result.intent in {
         Intent.PRODUCT_RECOMMENDATION,

@@ -25,6 +25,8 @@ from backend.services.intent_service import (
         ("what can I purchase ehre", Intent.PRODUCT_RECOMMENDATION),
         ("I need waterproof gear", Intent.PRODUCT_RECOMMENDATION),
         ("I need raingear", Intent.PRODUCT_RECOMMENDATION),
+        ("what about rain coats", Intent.PRODUCT_RECOMMENDATION),
+        ("raincoat", Intent.PRODUCT_RECOMMENDATION),
         ("I want to talk to a person", Intent.HUMAN_HANDOFF),
         ("Can I speak to customer service?", Intent.HUMAN_HANDOFF),
         ("Hi", Intent.MAIN_MENU),

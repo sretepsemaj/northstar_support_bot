@@ -15,6 +15,17 @@ The bot handles the required support scenarios:
 - Fallback Handling
 - Gratitude
 
+## Prerequisites
+
+This project expects a standard local Python environment:
+
+- Python 3.x
+- Python virtual environment support
+- pip
+- make
+
+`make setup` runs a preflight check and prints Ubuntu/Debian install guidance if Python venv support is missing.
+
 ## Quick Start
 
 From the project root:
@@ -32,7 +43,7 @@ http://localhost:8000
 
 ## Setup Details
 
-`make setup` will:
+`make setup` will first check that Python and venv support are available, then:
 
 - Create a Python virtual environment at `.venv` if it does not exist
 - Install dependencies from `requirements.txt`

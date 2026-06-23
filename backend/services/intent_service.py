@@ -6,11 +6,11 @@ import re
 
 class Intent(StrEnum):
     MAIN_MENU = "main_menu"
+    PRODUCT_RECOMMENDATION = "product_recommendation"
     ORDER_TRACKING = "order_tracking"
     RETURNS_EXCHANGE = "returns_exchange"
-    PRODUCT_RECOMMENDATION = "product_recommendation"
-    HUMAN_HANDOFF = "human_handoff"
     GRATITUDE = "gratitude"
+    HUMAN_HANDOFF = "human_handoff"
     FALLBACK = "fallback"
 
 
@@ -33,29 +33,18 @@ class IntentResult:
 
 
 INTENT_PHRASES: dict[Intent, tuple[str, ...]] = {
-    Intent.GRATITUDE: (
-        "thank you",
-        "appreciate it",
-        "appreciate your help",
-        "you were a great help",
-        "that helped",
-        "this helped",
-        "perfect thanks",
-    ),
     Intent.MAIN_MENU: (
         "what can you do",
         "what can you help with",
         "main menu",
         "show me options",
     ),
-    Intent.HUMAN_HANDOFF: (
-        "live agent",
-        "talk to a person",
-        "talk to someone",
-        "speak to a person",
-        "speak to someone",
-        "customer service",
-        "support team",
+    Intent.PRODUCT_RECOMMENDATION: (
+        "what should i buy",
+        "help me choose",
+        "what do you recommend",
+        "recommend a",
+        "suggest a",
     ),
     Intent.ORDER_TRACKING: (
         "where is my order",
@@ -73,12 +62,23 @@ INTENT_PHRASES: dict[Intent, tuple[str, ...]] = {
         "doesn't fit",
         "does not fit",
     ),
-    Intent.PRODUCT_RECOMMENDATION: (
-        "what should i buy",
-        "help me choose",
-        "what do you recommend",
-        "recommend a",
-        "suggest a",
+    Intent.GRATITUDE: (
+        "thank you",
+        "appreciate it",
+        "appreciate your help",
+        "you were a great help",
+        "that helped",
+        "this helped",
+        "perfect thanks",
+    ),
+    Intent.HUMAN_HANDOFF: (
+        "live agent",
+        "talk to a person",
+        "talk to someone",
+        "speak to a person",
+        "speak to someone",
+        "customer service",
+        "support team",
     ),
 }
 

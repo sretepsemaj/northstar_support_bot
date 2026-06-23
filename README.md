@@ -30,6 +30,8 @@ make setup
 make demo
 ```
 
+If system Python cannot create `.venv` but `uv` is installed, `make setup` now falls back automatically to the local `uv` path and still prepares `.venv` for the normal `make demo` and `make test` targets.
+
 Then open:
 
 ```text
@@ -118,7 +120,7 @@ make demo
 
 ## No-Sudo Fallback With uv
 
-If system Python cannot create a virtual environment and you already have `uv` installed, you can still use Makefile targets without sudo:
+If system Python cannot create a virtual environment and you already have `uv` installed, `make setup` will fall back to `uv` automatically. You can also use the explicit `uv`-only targets:
 
 ```bash
 rm -rf .venv

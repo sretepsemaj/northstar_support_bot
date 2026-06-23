@@ -84,6 +84,30 @@ def test_recommend_category_detail_asks_before_switching_on_context_modifier():
     )
 
 
+def test_recommend_category_detail_treats_polite_context_modifier_as_switch_clarifier():
+    result = recommend_category_detail("Camping Gear", "waterproof please")
+
+    assert result.category == "Camping Gear"
+    assert result.needs_clarification is True
+    assert result.waiting_for_detail is True
+    assert "Weather Protection" in result.message
+    assert "Camping Gear" in result.message
+    assert result.questions == (
+        "Switch to Weather Protection",
+        "Keep narrowing Camping Gear",
+    )
+
+
+def test_recommend_category_detail_can_keep_narrowing_current_category_after_switch_prompt():
+    result = recommend_category_detail("Camping Gear", "Keep narrowing Camping Gear")
+
+    assert result.category == "Camping Gear"
+    assert result.needs_clarification is True
+    assert result.waiting_for_detail is True
+    assert result.message == "Camping Gear is a good fit. What kind of gear should we narrow that down to?"
+    assert result.questions[0] == "1. Tents and shelters"
+
+
 def test_recommend_category_detail_ignores_weak_words_when_matching_options():
     result = recommend_category_detail("Hiking Footwear", "what else do you have")
 

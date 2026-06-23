@@ -1,4 +1,5 @@
-HANDOFF_RESPONSE = (
-    "I can connect you with a live agent. "
-    "I'll mark this conversation for human support now."
-)
+from backend.services.handoff_service import HandoffResult
+
+
+def format_handoff_response(result: HandoffResult) -> str:
+    return result.message

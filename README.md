@@ -17,14 +17,18 @@ The bot handles the required support scenarios:
 
 ## Prerequisites
 
-This project expects a standard local Python environment:
+This project expects Python 3 and `make` to be available on your machine.
 
-- Python 3.x
-- Python virtual environment support
-- pip
-- make
+`make setup` creates a local `.venv/` folder inside this project and installs dependencies there. Deleting the project folder also removes the project dependencies.
 
-`make setup` runs a preflight check and prints Ubuntu/Debian install guidance if Python venv support is missing.
+If Python is not installed, install Python 3 from python.org or your system package manager.
+
+On minimal Linux/VPS environments, you may also need Python venv support:
+
+```bash
+sudo apt update
+sudo apt install -y python3-venv python3-pip make
+```
 
 ## Quick Start
 

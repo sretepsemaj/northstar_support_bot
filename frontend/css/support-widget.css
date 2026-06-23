@@ -7,7 +7,7 @@
   gap: 0.15rem;
   border: 0;
   border-radius: 0.7rem;
-  padding: 0.9rem 1.1rem;
+  padding: 0.98rem 1.12rem;
   color: var(--paper);
   background: linear-gradient(135deg, var(--pine), var(--pine-2));
   box-shadow: var(--shadow);
@@ -180,10 +180,10 @@
 
 .support-nudge {
   position: fixed;
-  right: 1.35rem;
-  bottom: 6.05rem;
+  right: 6.8rem;
+  bottom: 6.75rem;
   z-index: 9;
-  max-width: 15rem;
+  max-width: 16rem;
   border: 1px solid rgba(255, 250, 240, 0.45);
   border-radius: 0.55rem 0.55rem 0.18rem 0.55rem;
   padding: 0.75rem 0.9rem;
@@ -191,6 +191,19 @@
   background: var(--paper);
   box-shadow: var(--shadow);
   animation: rise 180ms ease-out;
+}
+
+.support-nudge::after {
+  position: absolute;
+  right: 1.5rem;
+  bottom: -0.48rem;
+  width: 0.95rem;
+  height: 0.95rem;
+  background: var(--paper);
+  border-right: 1px solid rgba(255, 250, 240, 0.45);
+  border-bottom: 1px solid rgba(255, 250, 240, 0.45);
+  content: "";
+  transform: rotate(45deg);
 }
 
 @media (max-width: 620px) {
@@ -207,8 +220,8 @@
   }
 
   .support-nudge {
-    right: 0.75rem;
-    bottom: 5.5rem;
+    right: 2.25rem;
+    bottom: 5.85rem;
     max-width: calc(100vw - 2rem);
   }
 }

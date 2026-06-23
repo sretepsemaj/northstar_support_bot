@@ -1,0 +1,89 @@
+
+As a freelancer in the simulated project, you will build a functional customer support chatbot that could be used by a small e-commerce business specializing in outdoor apparel and camping gear. 
+
+All required business context, data, and requirements are provided below. 
+
+Brand Persona
+Name: North Star Support Bot (or similar)
+Tone: friendly, helpful, outdoorsy, concise
+Audience: North American outdoor consumers
+Core Use Cases (required)
+The chatbot must handle:
+Order Tracking
+Ask for order number
+Return simulated status
+Return & Exchanges
+Explain return policy
+Provide returns link
+Product Recommendations
+Ask 1-2 clarifying questions
+Recommend product category
+Human Handoff
+Handle fallback or explicit request
+Transition to “Live Agent” state
+Functional Requirements
+Intent Recognition
+Handle variations (e.g., “Where is my order?” vs. “Track my package”)
+Conversation Flow
+Logical, guided interactions
+Return user to main flow after resolution
+Mock Data Handling
+Use the following order logic:
+Order #111 -> Shipped, arriving tomorrow
+Order #222 -> Processing, ships in 24 hours
+Order #333 -> Delivered (ask follow-up if needed)
+Any other order -> invalid
+Fallback Handling
+Clear “I didn’t understand” response
+Offer options or escalation
+Provided Materials
+Return Policy: 30-day returns, unused items, original packaging
+Shipping: 
+Standard: 3-5 days
+Expedited: 1-2 days
+Constraints
+No deployment required
+Use provided data only
+Ensure flows are clear and functional
+Keep implementation practical and testable
+Evaluation Criteria
+Coverage of all required use cases
+Quality and clarity of conversation flows
+Accuracy of responses based on provided data
+Effectiveness of intent handling
+Overall usability of chatbot experience
+Deliverables
+Chatbot Implementation
+Exported bot file (e.g., Botpress, Dialogflow) OR Code Repository (with instructions)
+Video Demo
+2 - 3 minute recording
+Must demonstrate:
+All 4 core use cases
+At least one fallback scenario
+Submission Guidelines
+Submit all deliverables in a single document or clearly organized set of links
+Label outputs clearly (e.g., Image 1-20, Scenario 1-5)
+Ensure all required components are included before submission
+Double check your work aligns with project requirements
+
+SLA Expectations
+As part of the Upwork Talent Accelerator program, you are expected to work within specific timeframes at each stage of the process.
+
+Here’s what’s expected of you: 
+Review & Accept Contract (within 24 hrs)
+When you receive your contract, review the scope and confirm your acceptance within 24 hrs. Work should not begin until contact is accepted.
+Complete & Submit Work (24 - 48 hrs)
+Once you have accepted the contract, begin work promptly and complete and submit all required deliverables within 24 - 48 hours
+Acknowledge Outcomes (within 24 hours)
+Once feedback or a decision is shared (approved, revisions requested, etc.) review and confirm steps within 24 hours. 
+Complete Revisions (within 24 hours)
+If revisions are requested, update and resubmit your work within 24 hours
+
+Grading from Upwork possible reward if this is good.
+
+What you can earn by completing this job
+5 stars: 6 months of Freelancer Plus + 500 Connects (a nearly $200 value)
+4 stars: 3 months of Freelancer Plus + 200 Connects (a nearly $90 value)
+3 stars or below: No additional benefits
+Clients will see the completed job, relevant skills, and Upwork's review and rating in your work history.
+

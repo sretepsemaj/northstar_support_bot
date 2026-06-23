@@ -512,7 +512,7 @@ def test_fallback_response_includes_closed_live_agent_quote():
 
 def test_fallback_can_use_llm_assist_for_recommendation_category(monkeypatch):
     def fake_review_ambiguous_message(message):
-        assert message == "I need raincoats"
+        assert message == "I need something for soggy conditions"
         return build_recommendation_assist_result("Weather Protection")
 
     monkeypatch.setattr(
@@ -521,7 +521,7 @@ def test_fallback_can_use_llm_assist_for_recommendation_category(monkeypatch):
     )
     monkeypatch.setattr("backend.services.chatbot_service.is_llm_configured", lambda: True)
 
-    result = handle_chat("I need raincoats", state={})
+    result = handle_chat("I need something for soggy conditions", state={})
 
     assert result.intent == Intent.PRODUCT_RECOMMENDATION
     assert "Weather Protection is a good fit" in result.reply

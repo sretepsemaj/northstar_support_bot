@@ -371,6 +371,47 @@ def test_recommendation_detail_asks_before_switching_on_context_modifier():
     }
 
 
+def test_recommendation_detail_polite_context_modifier_asks_before_switching():
+    result = handle_chat(
+        "waterproof please",
+        state={
+            ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+            WAITING_FOR: RECOMMENDATION_DETAIL,
+            RECOMMENDATION_CATEGORY: "Camping Gear",
+        },
+    )
+
+    assert result.intent == Intent.PRODUCT_RECOMMENDATION
+    assert "Weather Protection" in result.reply
+    assert "Camping Gear" in result.reply
+    assert "Keep narrowing Camping Gear" in result.reply
+    assert result.state == {
+        ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+        WAITING_FOR: RECOMMENDATION_DETAIL,
+        RECOMMENDATION_CATEGORY: "Camping Gear",
+    }
+
+
+def test_recommendation_detail_can_keep_narrowing_after_switch_prompt():
+    result = handle_chat(
+        "Keep narrowing Camping Gear",
+        state={
+            ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+            WAITING_FOR: RECOMMENDATION_DETAIL,
+            RECOMMENDATION_CATEGORY: "Camping Gear",
+        },
+    )
+
+    assert result.intent == Intent.PRODUCT_RECOMMENDATION
+    assert "Camping Gear is a good fit" in result.reply
+    assert "Tents and shelters" in result.reply
+    assert result.state == {
+        ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+        WAITING_FOR: RECOMMENDATION_DETAIL,
+        RECOMMENDATION_CATEGORY: "Camping Gear",
+    }
+
+
 def test_recommendation_detail_unknown_reply_returns_to_category_menu_when_llm_is_off(monkeypatch):
     monkeypatch.setattr("backend.services.chatbot_service.is_llm_configured", lambda: False)
 

@@ -130,6 +130,17 @@ CONTEXT_MODIFIERS = {
     "wind",
 }
 
+CONTEXT_MODIFIER_FILLER_WORDS = {
+    "a",
+    "an",
+    "for",
+    "just",
+    "kind",
+    "maybe",
+    "please",
+    "something",
+}
+
 DETAIL_STOP_WORDS = {
     "a",
     "an",
@@ -204,12 +215,28 @@ def _build_category_switch_prompt(
 
 
 def _is_context_modifier(message: str) -> bool:
-    words = {word for word in message.split() if len(word) > 2}
+    words = {
+        word
+        for word in message.split()
+        if len(word) > 2 and word not in CONTEXT_MODIFIER_FILLER_WORDS
+    }
     return bool(words and words.issubset(CONTEXT_MODIFIERS))
+
+
+def _is_keep_narrowing_current_category_request(category: str, message: str) -> bool:
+    normalized_message = message.strip().lower()
+    return (
+        "keep" in normalized_message
+        and "narrow" in normalized_message
+        and category.lower() in normalized_message
+    )
 
 
 def recommend_category_detail(category: str, message: str) -> RecommendationResult:
     normalized_message = message.strip().lower()
+    if _is_keep_narrowing_current_category_request(category, message):
+        return _build_category_detail_prompt(category)
+
     selected_category = None if normalized_message.isdigit() else _parse_category_selection(message)
     if selected_category is not None and selected_category != category:
         if _is_context_modifier(normalized_message):

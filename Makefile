@@ -1,4 +1,4 @@
-.PHONY: setup demo test clean
+.PHONY: setup demo test clean doctor
 
 setup:
 	@command -v python3 >/dev/null 2>&1 || { \
@@ -7,7 +7,15 @@ setup:
 	}
 	@if [ ! -x .venv/bin/pip ]; then \
 		python3 -m venv .venv || { \
-			echo "Could not create .venv. See README.md Prerequisites, then retry: rm -rf .venv && make setup"; \
+			echo ""; \
+			echo "Could not create .venv."; \
+			echo "Your system Python may be missing venv/ensurepip support."; \
+			echo ""; \
+			echo "On Ubuntu/Debian, run:"; \
+			echo "  sudo apt update && sudo apt install -y python3 python3-venv python3-pip make"; \
+			echo "  rm -rf .venv && make setup"; \
+			echo ""; \
+			echo "If sudo is not available but uv is installed, see README.md for the uv fallback."; \
 			exit 1; \
 		}; \
 	fi
@@ -18,6 +26,15 @@ demo:
 
 test:
 	.venv/bin/pytest
+
+doctor:
+	@echo "Checking startup prerequisites..."
+	@command -v python3 >/dev/null 2>&1 && echo "python3: OK" || echo "python3: MISSING"
+	@command -v make >/dev/null 2>&1 && echo "make: OK" || echo "make: MISSING"
+	@tmp_dir=$$(mktemp -d 2>/dev/null || mktemp -d -t northstar-venv); \
+	python3 -m venv "$$tmp_dir" >/dev/null 2>&1 && echo "venv: OK" || echo "venv: FAIL"; \
+	rm -rf "$$tmp_dir"
+	@command -v uv >/dev/null 2>&1 && echo "uv: AVAILABLE (fallback option)" || echo "uv: not found"
 
 clean:
 	find . -type d -name "__pycache__" -prune -exec rm -rf {} +

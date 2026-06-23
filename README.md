@@ -17,30 +17,20 @@ The bot handles the required support scenarios:
 
 ## Prerequisites
 
-This project expects Python 3 to be available on your machine. The recommended setup uses `make`, which keeps the commands short.
+This project needs Python 3. The recommended local setup uses `make` for short commands.
 
-Project dependencies are installed into a local `.venv/` folder inside this project. Deleting the project folder also removes the project dependencies.
+Project dependencies install into a local `.venv/` folder inside this repo. Deleting the project folder also removes the project dependencies.
 
-## Quick Start: macOS/Linux
+## Quick Start
 
-Install Python 3 and `make` first if needed.
-
-```bash
-# macOS with Homebrew
-brew install python make
-
-# Ubuntu/Debian
-sudo apt update && sudo apt install -y python3 python3-venv python3-pip make
-```
-
-Then run the project from the repo root:
+From the repo root:
 
 ```bash
 make setup
 make demo
 ```
 
-Open the demo app at:
+Then open:
 
 ```text
 http://localhost:8000
@@ -52,9 +42,30 @@ Run tests with:
 make test
 ```
 
-## Manual Setup: macOS/Linux
+## What Success Looks Like
 
-Use this if `make` is not available.
+A successful startup should:
+
+- Create a local `.venv/` directory
+- Install dependencies from `requirements.txt`
+- Start Uvicorn on port `8000`
+
+After startup:
+
+- `http://localhost:8000` loads the demo UI
+- `http://localhost:8000/health` returns JSON with `"status": "ok"`
+
+## Setup Troubleshooting
+
+If you want a quick environment check, run:
+
+```bash
+make doctor
+```
+
+## Manual Setup Without make: macOS/Linux
+
+Use this if `make` is not available:
 
 ```bash
 python3 -m venv .venv
@@ -62,15 +73,15 @@ python3 -m venv .venv
 .venv/bin/python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
-Run tests manually with:
+Run tests with:
 
 ```bash
 .venv/bin/python -m pytest
 ```
 
-## Manual Setup: Windows PowerShell
+## Windows PowerShell
 
-Windows usually uses `python` instead of `python3`. If Python was just installed, reopen PowerShell before running the setup commands.
+Windows usually uses `python` instead of `python3`. If Python was just installed, reopen PowerShell before running setup.
 
 ```powershell
 winget install Python.Python.3.12
@@ -79,28 +90,46 @@ python -m venv .venv
 .\.venv\Scripts\python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
-Run tests manually with:
+Run tests with:
 
 ```powershell
 .\.venv\Scripts\python -m pytest
 ```
 
-## Minimal VPS Note
+## VPS With Sudo
 
-Some stripped-down Ubuntu/Debian VPS images do not include Python venv support by default. If `.venv` creation fails, install the missing system tools and retry setup:
+If `make setup` fails while creating `.venv`, your system Python may be missing virtual environment support. On Ubuntu/Debian, run:
 
 ```bash
 sudo apt update && sudo apt install -y python3 python3-venv python3-pip make
 rm -rf .venv
 make setup
+make demo
 ```
 
-If your Linux system uses Python 3.12-specific packages, use this instead:
+If your Linux system uses Python 3.12-specific packages, use:
 
 ```bash
 sudo apt update && sudo apt install -y python3.12-venv python3-pip make
 rm -rf .venv
 make setup
+make demo
+```
+
+## No-Sudo Fallback With uv
+
+If system Python cannot create a virtual environment and you already have `uv` installed, you can run the project without sudo:
+
+```bash
+uv venv .venv
+uv pip install --python .venv/bin/python -r requirements.txt
+.venv/bin/python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
+```
+
+Run tests with:
+
+```bash
+.venv/bin/python -m pytest
 ```
 
 ## Environment Variables

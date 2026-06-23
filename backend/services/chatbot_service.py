@@ -170,12 +170,32 @@ def handle_chat(message: str, state: dict[str, Any] | None = None) -> ChatServic
         Intent.PRODUCT_RECOMMENDATION,
         Intent.FALLBACK,
     }:
+        detail_result = build_recommendation_detail_result(
+            state[RECOMMENDATION_CATEGORY],
+            message,
+        )
+        detail_state = detail_result[2]
+        llm_attempted = is_llm_configured()
+        if detail_state.get(WAITING_FOR) == RECOMMENDATION_CONTEXT and llm_attempted:
+            assist = review_ambiguous_message(message)
+            assist_result = _build_llm_assist_result(assist, message)
+            if assist_result is not None:
+                return _build_result(
+                    assist_result,
+                    intent_result,
+                    llm_attempted=llm_attempted,
+                    intent_reviewed=bool(assist and assist.used_llm),
+                    llm_category=assist.category if assist else None,
+                )
+
         return _build_result(
-            build_recommendation_detail_result(
-                state[RECOMMENDATION_CATEGORY],
-                message,
-            ),
+            detail_result,
             intent_result,
+            llm_attempted=(
+                llm_attempted
+                if detail_state.get(WAITING_FOR) == RECOMMENDATION_CONTEXT
+                else False
+            ),
         )
 
     if intent_result.intent == Intent.PRODUCT_RECOMMENDATION:

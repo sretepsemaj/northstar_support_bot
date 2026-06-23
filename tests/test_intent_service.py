@@ -61,6 +61,8 @@ def test_detect_intent_handles_required_exact_variations(message, expected_inten
         ("talk to an agnet", Intent.HUMAN_HANDOFF),
         ("reccomend something", Intent.PRODUCT_RECOMMENDATION),
         ("thnak", Intent.GRATITUDE),
+        ("thatnk you", Intent.GRATITUDE),
+        ("oaky thatnkyou", Intent.GRATITUDE),
         ("thanx", Intent.GRATITUDE),
     ],
 )

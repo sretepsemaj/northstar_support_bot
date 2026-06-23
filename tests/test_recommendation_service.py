@@ -71,11 +71,12 @@ def test_recommend_category_detail_can_switch_categories():
 def test_recommend_category_detail_ignores_weak_words_when_matching_options():
     result = recommend_category_detail("Hiking Footwear", "what else do you have")
 
-    assert result.category == "Hiking Footwear"
-    assert result.needs_clarification is False
+    assert result.category is None
+    assert result.needs_clarification is True
+    assert result.waiting_for_detail is False
     assert "Great choice" not in result.message
-    assert "It covers" in result.message
-    assert "Hiking boots" in result.message
+    assert "What are you shopping for today" in result.message
+    assert result.questions[0] == "1. Camping Gear"
 
 
 def test_recommend_category_does_not_invent_specific_products():

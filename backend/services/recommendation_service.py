@@ -213,10 +213,11 @@ def recommend_category_detail(category: str, message: str) -> RecommendationResu
             ),
         )
 
-    option_summary = ", ".join(options[:-1]) + f", or {options[-1].lower()}"
     return RecommendationResult(
-        category=category,
-        message=f"For that trip, I recommend our {category} category. It covers {option_summary}.",
+        category=None,
+        message="I may be outside that category. What are you shopping for today?",
+        needs_clarification=True,
+        questions=_format_option_list(CATEGORY_OPTIONS),
     )
 
 

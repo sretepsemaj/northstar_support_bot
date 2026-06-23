@@ -151,7 +151,11 @@ INTENT_PRIORITY = (
 )
 
 TYPO_ALIASES: dict[str, tuple[Intent, str]] = {
+    "thatnk": (Intent.GRATITUDE, "thanks"),
+    "thatnks": (Intent.GRATITUDE, "thanks"),
+    "thatnkyou": (Intent.GRATITUDE, "thanks"),
     "thnak": (Intent.GRATITUDE, "thanks"),
+    "thnaks": (Intent.GRATITUDE, "thanks"),
     "thanx": (Intent.GRATITUDE, "thanks"),
 }
 

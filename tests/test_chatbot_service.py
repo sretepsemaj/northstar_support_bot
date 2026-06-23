@@ -145,7 +145,7 @@ def test_handle_chat_routes_gratitude_to_polite_response():
 
 
 def test_handle_chat_routes_gratitude_typo_to_polite_response_with_review_flag():
-    result = handle_chat("thnak", state={})
+    result = handle_chat("oaky thatnkyou", state={})
 
     assert result.intent == Intent.GRATITUDE
     assert "You're welcome" in result.reply
@@ -174,7 +174,9 @@ def test_handle_chat_prioritizes_handoff_over_other_business_intents():
     assert result.handoff is True
 
 
-def test_handle_chat_routes_unknown_message_to_fallback_menu():
+def test_handle_chat_routes_unknown_message_to_fallback_menu(monkeypatch):
+    monkeypatch.setattr("backend.services.chatbot_service.is_llm_configured", lambda: False)
+
     result = handle_chat("what is the weather today?", state={})
 
     assert result.intent == Intent.FALLBACK
@@ -316,6 +318,56 @@ def test_recommendation_detail_can_switch_to_new_category():
         WAITING_FOR: RECOMMENDATION_DETAIL,
         RECOMMENDATION_CATEGORY: "Camping Gear",
     }
+
+
+def test_recommendation_detail_unknown_reply_returns_to_category_menu_when_llm_is_off(monkeypatch):
+    monkeypatch.setattr("backend.services.chatbot_service.is_llm_configured", lambda: False)
+
+    result = handle_chat(
+        "walking stick",
+        state={
+            ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+            WAITING_FOR: RECOMMENDATION_DETAIL,
+            RECOMMENDATION_CATEGORY: "Hiking Footwear",
+        },
+    )
+
+    assert result.intent == Intent.PRODUCT_RECOMMENDATION
+    assert "What are you shopping for today" in result.reply
+    assert "1. Camping Gear" in result.reply
+    assert result.state == {
+        ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+        WAITING_FOR: RECOMMENDATION_CONTEXT,
+    }
+    assert result.metadata["llm_attempted"] is False
+
+
+def test_recommendation_detail_unknown_reply_can_use_llm_category(monkeypatch):
+    monkeypatch.setattr("backend.services.chatbot_service.is_llm_configured", lambda: True)
+    monkeypatch.setattr(
+        "backend.services.chatbot_service.review_ambiguous_message",
+        lambda message: build_recommendation_assist_result("Climbing Essentials"),
+    )
+
+    result = handle_chat(
+        "helmet",
+        state={
+            ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+            WAITING_FOR: RECOMMENDATION_DETAIL,
+            RECOMMENDATION_CATEGORY: "Hiking Footwear",
+        },
+    )
+
+    assert result.intent == Intent.PRODUCT_RECOMMENDATION
+    assert "Climbing Essentials is a good fit" in result.reply
+    assert result.state == {
+        ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+        WAITING_FOR: RECOMMENDATION_DETAIL,
+        RECOMMENDATION_CATEGORY: "Climbing Essentials",
+    }
+    assert result.metadata["llm_attempted"] is True
+    assert result.metadata["intent_reviewed"] is True
+    assert result.metadata["llm_category"] == "Climbing Essentials"
 
 
 def test_general_help_question_routes_to_main_menu():

@@ -45,7 +45,11 @@ def build_recommendation_detail_result(
     state: dict[str, Any] = {ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW}
 
     if recommendation.needs_clarification:
-        state[WAITING_FOR] = RECOMMENDATION_DETAIL
+        state[WAITING_FOR] = (
+            RECOMMENDATION_DETAIL
+            if recommendation.waiting_for_detail
+            else RECOMMENDATION_CONTEXT
+        )
         if recommendation.category is not None:
             state[RECOMMENDATION_CATEGORY] = recommendation.category
 

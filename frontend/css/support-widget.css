@@ -97,6 +97,11 @@
   white-space: pre-wrap;
 }
 
+.message p + p,
+.message-options + p {
+  margin-top: 0.58rem;
+}
+
 .message.bot {
   align-self: flex-start;
   border-bottom-left-radius: 0.18rem;

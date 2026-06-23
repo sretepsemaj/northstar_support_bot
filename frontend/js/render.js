@@ -1,5 +1,6 @@
 window.NorthStarRender = {
   optionPattern: /^\s*-?\s*(\d+)\.\s+(.+)$/gm,
+  optionLinePattern: /^\s*-?\s*(\d+)\.\s+(.+)$/,
 
   renderScenarios(scenarios, onSelect) {
     const list = document.querySelector("#scenario-list");
@@ -42,32 +43,60 @@ window.NorthStarRender = {
     );
   },
 
+  appendParagraph(message, lines) {
+    const text = lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+    if (!text) return;
+
+    const content = document.createElement("p");
+    content.textContent = text;
+    message.appendChild(content);
+  },
+
+  appendOptionButton(optionList, value, label, onOptionSelect) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = `${value}. ${label}`;
+    button.addEventListener("click", () => onOptionSelect(value));
+    optionList.appendChild(button);
+  },
+
   addMessage(role, text, onOptionSelect) {
     const list = document.querySelector("#message-list");
     const message = document.createElement("div");
     message.className = `message ${role}`;
 
-    const options = role === "bot" ? this.parseOptions(text) : [];
-    const messageText = options.length ? this.stripOptions(text, options) : text;
-
-    const content = document.createElement("p");
-    content.textContent = messageText;
-    message.appendChild(content);
-
-    if (options.length && typeof onOptionSelect === "function") {
-      const optionList = document.createElement("div");
-      optionList.className = "message-options";
-
-      options.forEach((option) => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.textContent = `${option.value}. ${option.label}`;
-        button.addEventListener("click", () => onOptionSelect(option.value));
-        optionList.appendChild(button);
-      });
-
-      message.appendChild(optionList);
+    if (role !== "bot" || typeof onOptionSelect !== "function") {
+      this.appendParagraph(message, [text]);
+      list.appendChild(message);
+      list.scrollTop = list.scrollHeight;
+      return;
     }
+
+    let paragraphLines = [];
+    let optionList = null;
+
+    text.split("\n").forEach((line) => {
+      const optionMatch = line.match(this.optionLinePattern);
+
+      if (!optionMatch) {
+        optionList = null;
+        paragraphLines.push(line);
+        return;
+      }
+
+      this.appendParagraph(message, paragraphLines);
+      paragraphLines = [];
+
+      if (!optionList) {
+        optionList = document.createElement("div");
+        optionList.className = "message-options";
+        message.appendChild(optionList);
+      }
+
+      this.appendOptionButton(optionList, optionMatch[1], optionMatch[2], onOptionSelect);
+    });
+
+    this.appendParagraph(message, paragraphLines);
 
     list.appendChild(message);
     list.scrollTop = list.scrollHeight;

@@ -13,3 +13,4 @@ class ChatResponse(BaseModel):
     intent: str
     state: dict[str, Any] = Field(default_factory=dict)
     handoff: bool = False
+    metadata: dict[str, Any] = Field(default_factory=dict)

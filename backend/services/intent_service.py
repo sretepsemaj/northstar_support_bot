@@ -136,12 +136,12 @@ INTENT_KEYWORDS: dict[Intent, tuple[str, ...]] = {
 }
 
 INTENT_PRIORITY = (
-    Intent.MAIN_MENU,
-    Intent.PRODUCT_RECOMMENDATION,
+    Intent.HUMAN_HANDOFF,
     Intent.ORDER_TRACKING,
     Intent.RETURNS_EXCHANGE,
+    Intent.PRODUCT_RECOMMENDATION,
     Intent.GRATITUDE,
-    Intent.HUMAN_HANDOFF,
+    Intent.MAIN_MENU,
 )
 
 TYPO_ALIASES: dict[str, tuple[Intent, str]] = {

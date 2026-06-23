@@ -7,6 +7,7 @@ class RecommendationResult:
     message: str
     needs_clarification: bool = False
     questions: tuple[str, ...] = ()
+    waiting_for_detail: bool = False
 
 
 CATEGORY_KEYWORDS = {
@@ -20,7 +21,10 @@ CATEGORY_KEYWORDS = {
     },
     "Outdoor Apparel": {
         "apparel",
+        "cold",
         "clothing",
+        "insulated",
+        "insulation",
         "jacket",
         "layer",
         "layers",
@@ -47,33 +51,152 @@ CATEGORY_KEYWORDS = {
     },
     "Weather Protection": {
         "rain",
+        "raincoat",
+        "raincoats",
         "snow",
         "storm",
         "waterproof",
+        "weather protection",
         "wind",
         "shell",
     },
 }
 
-CLARIFYING_QUESTIONS = (
-    "What activity are you shopping for: camping, hiking, climbing, or weather protection?",
-    "What conditions do you expect: warm, cold, wet, or mixed weather?",
+CATEGORY_OPTIONS = (
+    "Camping Gear",
+    "Outdoor Apparel",
+    "Hiking Footwear",
+    "Climbing Essentials",
+    "Weather Protection",
 )
 
+CATEGORY_DETAIL_OPTIONS = {
+    "Camping Gear": (
+        "Tents and shelters",
+        "Sleeping bags and camp comfort",
+        "Trail cooking and campsite basics",
+    ),
+    "Outdoor Apparel": (
+        "Warm layers and fleece",
+        "Insulated jackets",
+        "Trail pants and everyday outdoor clothing",
+    ),
+    "Hiking Footwear": (
+        "Hiking boots",
+        "Trail shoes",
+        "Wet-weather or rugged-terrain footwear",
+    ),
+    "Climbing Essentials": (
+        "Climbing shoes",
+        "Harnesses and belay basics",
+        "Chalk, ropes, and protection essentials",
+    ),
+    "Weather Protection": (
+        "Rain shells and waterproof layers",
+        "Wind protection",
+        "Cold-weather outer layers",
+        "Snow or storm protection",
+    ),
+}
 
-def recommend_category(message: str) -> RecommendationResult:
-    normalized_message = message.lower()
+CATEGORY_SELECTIONS = {
+    "1": "Camping Gear",
+    "camping gear": "Camping Gear",
+    "camping": "Camping Gear",
+    "2": "Outdoor Apparel",
+    "outdoor apparel": "Outdoor Apparel",
+    "apparel": "Outdoor Apparel",
+    "3": "Hiking Footwear",
+    "hiking footwear": "Hiking Footwear",
+    "footwear": "Hiking Footwear",
+    "4": "Climbing Essentials",
+    "climbing essentials": "Climbing Essentials",
+    "climbing": "Climbing Essentials",
+    "5": "Weather Protection",
+    "weather protection": "Weather Protection",
+}
+
+
+def _format_option_list(options: tuple[str, ...]) -> tuple[str, ...]:
+    return tuple(f"{index}. {option}" for index, option in enumerate(options, start=1))
+
+
+def _parse_category_selection(message: str) -> str | None:
+    normalized_message = message.strip().lower()
+    if normalized_message in CATEGORY_SELECTIONS:
+        return CATEGORY_SELECTIONS[normalized_message]
+
+    for category in CATEGORY_OPTIONS:
+        if category.lower() in normalized_message:
+            return category
 
     for category, keywords in CATEGORY_KEYWORDS.items():
         if any(keyword in normalized_message for keyword in keywords):
-            return RecommendationResult(
-                category=category,
-                message=f"For that trip, I recommend starting with our {category} category.",
-            )
+            return category
+
+    return None
+
+
+def _build_category_detail_prompt(category: str) -> RecommendationResult:
+    return RecommendationResult(
+        category=category,
+        message=f"{category} is a good fit. What kind of gear should we narrow that down to?",
+        needs_clarification=True,
+        questions=_format_option_list(CATEGORY_DETAIL_OPTIONS[category]),
+        waiting_for_detail=True,
+    )
+
+
+def recommend_category_detail(category: str, message: str) -> RecommendationResult:
+    options = CATEGORY_DETAIL_OPTIONS.get(category)
+    if options is None:
+        return RecommendationResult(
+            category=category,
+            message=f"For that trip, I recommend starting with our {category} category.",
+        )
+
+    normalized_message = message.strip().lower()
+    selected_detail = None
+    if normalized_message.isdigit():
+        option_index = int(normalized_message) - 1
+        if 0 <= option_index < len(options):
+            selected_detail = options[option_index]
+
+    if selected_detail is None:
+        selected_detail = next(
+            (
+                option
+                for option in options
+                if normalized_message in option.lower()
+                or any(word in option.lower() for word in normalized_message.split())
+            ),
+            None,
+        )
+
+    if selected_detail is not None:
+        return RecommendationResult(
+            category=category,
+            message=(
+                f"Great choice. I recommend our {category} category, "
+                f"especially {selected_detail.lower()}."
+            ),
+        )
+
+    option_summary = ", ".join(options[:-1]) + f", or {options[-1].lower()}"
+    return RecommendationResult(
+        category=category,
+        message=f"For that trip, I recommend our {category} category. It covers {option_summary}.",
+    )
+
+
+def recommend_category(message: str) -> RecommendationResult:
+    selected_category = _parse_category_selection(message)
+    if selected_category is not None:
+        return _build_category_detail_prompt(selected_category)
 
     return RecommendationResult(
         category=None,
-        message="I can help narrow that down with a couple quick questions.",
+        message="I can help with that. What are you shopping for today?",
         needs_clarification=True,
-        questions=CLARIFYING_QUESTIONS,
+        questions=_format_option_list(CATEGORY_OPTIONS),
     )

@@ -5,13 +5,19 @@ from backend.chatbot.constants import (
     ORDER_NUMBER,
     ORDER_TRACKING_FLOW,
     PRODUCT_RECOMMENDATION_FLOW,
+    RECOMMENDATION_CATEGORY,
     RECOMMENDATION_CONTEXT,
+    RECOMMENDATION_DETAIL,
     RETURNS_EXCHANGE_FLOW,
     WAITING_FOR,
 )
 from backend.chatbot.responses.main_menu import MAIN_MENU_RESPONSE
 from backend.services.chatbot_service import handle_chat
 from backend.services.intent_service import Intent, MatchStrategy
+from backend.services.llm_service import (
+    LLMAssistResult,
+    build_recommendation_assist_result,
+)
 
 
 def test_handle_chat_routes_greeting_to_main_menu():
@@ -31,7 +37,11 @@ def test_handle_chat_routes_specific_recommendation_to_category_response():
 
     assert result.intent == Intent.PRODUCT_RECOMMENDATION
     assert "Camping Gear" in result.reply
-    assert result.state == {ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW}
+    assert result.state == {
+        ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+        WAITING_FOR: RECOMMENDATION_DETAIL,
+        RECOMMENDATION_CATEGORY: "Camping Gear",
+    }
     assert result.handoff is False
 
 
@@ -39,9 +49,9 @@ def test_handle_chat_asks_clarifying_questions_for_vague_recommendation():
     result = handle_chat("I need help choosing gear", state={})
 
     assert result.intent == Intent.PRODUCT_RECOMMENDATION
-    assert "couple quick questions" in result.reply
-    assert "activity" in result.reply.lower()
-    assert "conditions" in result.reply.lower()
+    assert "What are you shopping for today" in result.reply
+    assert "1. Camping Gear" in result.reply
+    assert "5. Weather Protection" in result.reply
     assert result.state == {
         ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
         WAITING_FOR: RECOMMENDATION_CONTEXT,
@@ -216,14 +226,18 @@ def test_waiting_for_order_number_allows_recommendation_escape():
 
     assert result.intent == Intent.PRODUCT_RECOMMENDATION
     assert "Hiking Footwear" in result.reply
-    assert result.state == {ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW}
+    assert result.state == {
+        ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+        WAITING_FOR: RECOMMENDATION_DETAIL,
+        RECOMMENDATION_CATEGORY: "Hiking Footwear",
+    }
 
 
 def test_main_menu_option_three_routes_to_product_recommendations():
     result = handle_chat("3", state={ACTIVE_FLOW: MAIN_MENU_FLOW})
 
     assert result.intent == Intent.PRODUCT_RECOMMENDATION
-    assert "couple quick questions" in result.reply
+    assert "What are you shopping for today" in result.reply
     assert result.state == {
         ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
         WAITING_FOR: RECOMMENDATION_CONTEXT,
@@ -234,14 +248,49 @@ def test_shopping_question_routes_to_product_recommendations():
     result = handle_chat("what stuff can I get here", state={})
 
     assert result.intent == Intent.PRODUCT_RECOMMENDATION
-    assert "couple quick questions" in result.reply
+    assert "What are you shopping for today" in result.reply
 
 
 def test_purchase_question_with_typo_routes_to_product_recommendations():
     result = handle_chat("what can I purchase ehre", state={})
 
     assert result.intent == Intent.PRODUCT_RECOMMENDATION
-    assert "couple quick questions" in result.reply
+    assert "What are you shopping for today" in result.reply
+
+
+def test_recommendation_menu_selection_routes_to_category_specific_follow_up():
+    result = handle_chat(
+        "5",
+        state={
+            ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+            WAITING_FOR: RECOMMENDATION_CONTEXT,
+        },
+    )
+
+    assert result.intent == Intent.PRODUCT_RECOMMENDATION
+    assert "Weather Protection is a good fit" in result.reply
+    assert "Rain shells" in result.reply
+    assert result.state == {
+        ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+        WAITING_FOR: RECOMMENDATION_DETAIL,
+        RECOMMENDATION_CATEGORY: "Weather Protection",
+    }
+
+
+def test_recommendation_detail_selection_returns_final_recommendation():
+    result = handle_chat(
+        "1",
+        state={
+            ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+            WAITING_FOR: RECOMMENDATION_DETAIL,
+            RECOMMENDATION_CATEGORY: "Weather Protection",
+        },
+    )
+
+    assert result.intent == Intent.PRODUCT_RECOMMENDATION
+    assert "Weather Protection" in result.reply
+    assert "rain shells" in result.reply.lower()
+    assert result.state == {ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW}
 
 
 def test_general_help_question_routes_to_main_menu():
@@ -255,3 +304,45 @@ def test_fallback_response_includes_closed_live_agent_quote():
     result = handle_chat("random moon banana", state={})
 
     assert 'say "live agent."' in result.reply
+
+
+def test_fallback_can_use_llm_assist_for_recommendation_category(monkeypatch):
+    def fake_review_ambiguous_message(message):
+        assert message == "I need raincoats"
+        return build_recommendation_assist_result("Weather Protection")
+
+    monkeypatch.setattr(
+        "backend.services.chatbot_service.review_ambiguous_message",
+        fake_review_ambiguous_message,
+    )
+
+    result = handle_chat("I need raincoats", state={})
+
+    assert result.intent == Intent.PRODUCT_RECOMMENDATION
+    assert "Weather Protection is a good fit" in result.reply
+    assert result.state == {
+        ACTIVE_FLOW: PRODUCT_RECOMMENDATION_FLOW,
+        WAITING_FOR: RECOMMENDATION_DETAIL,
+        RECOMMENDATION_CATEGORY: "Weather Protection",
+    }
+    assert result.metadata["intent_reviewed"] is True
+    assert result.metadata["llm_category"] == "Weather Protection"
+    assert result.handoff is False
+
+
+def test_fallback_can_use_llm_assist_for_handoff(monkeypatch):
+    monkeypatch.setattr(
+        "backend.services.chatbot_service.review_ambiguous_message",
+        lambda message: LLMAssistResult(
+            intent=Intent.HUMAN_HANDOFF,
+            needs_handoff=True,
+            used_llm=True,
+        ),
+    )
+
+    result = handle_chat("this is not helping", state={})
+
+    assert result.intent == Intent.HUMAN_HANDOFF
+    assert result.state == {ACTIVE_FLOW: HUMAN_HANDOFF_FLOW}
+    assert result.metadata["intent_reviewed"] is True
+    assert result.handoff is True

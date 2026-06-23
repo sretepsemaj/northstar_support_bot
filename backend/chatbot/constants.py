@@ -8,4 +8,6 @@ RETURNS_EXCHANGE_FLOW = "returns_exchange"
 HUMAN_HANDOFF_FLOW = "human_handoff"
 
 RECOMMENDATION_CONTEXT = "recommendation_context"
+RECOMMENDATION_CATEGORY = "recommendation_category"
+RECOMMENDATION_DETAIL = "recommendation_detail"
 ORDER_NUMBER = "order_number"

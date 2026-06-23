@@ -1,6 +1,9 @@
 import pytest
 
-from backend.services.recommendation_service import recommend_category
+from backend.services.recommendation_service import (
+    recommend_category,
+    recommend_category_detail,
+)
 
 
 @pytest.mark.parametrize(
@@ -11,13 +14,17 @@ from backend.services.recommendation_service import recommend_category
         ("I need boots for a hiking trip", "Hiking Footwear"),
         ("What should I get for rock climbing?", "Climbing Essentials"),
         ("I need something waterproof for rain", "Weather Protection"),
+        ("I need a raincoat", "Weather Protection"),
+        ("weather protection for cold weather", "Weather Protection"),
+        ("I need cold weather gear", "Outdoor Apparel"),
     ],
 )
 def test_recommend_category_matches_outdoor_shopping_contexts(message, expected_category):
     result = recommend_category(message)
 
-    assert result.needs_clarification is False
     assert result.category == expected_category
+    assert result.needs_clarification is True
+    assert result.waiting_for_detail is True
     assert expected_category in result.message
 
 
@@ -26,13 +33,33 @@ def test_recommend_category_asks_clarifying_questions_for_vague_requests():
 
     assert result.category is None
     assert result.needs_clarification is True
-    assert len(result.questions) == 2
-    assert "activity" in result.questions[0].lower()
-    assert "conditions" in result.questions[1].lower()
+    assert len(result.questions) == 5
+    assert result.questions[0] == "1. Camping Gear"
+    assert result.questions[4] == "5. Weather Protection"
+
+
+def test_recommend_category_selection_asks_category_specific_follow_up():
+    result = recommend_category("5")
+
+    assert result.category == "Weather Protection"
+    assert result.needs_clarification is True
+    assert result.waiting_for_detail is True
+    assert "What kind of gear" in result.message
+    assert "Rain shells" in result.questions[0]
+    assert "Snow or storm protection" in result.questions[3]
+
+
+def test_recommend_category_detail_returns_final_recommendation():
+    result = recommend_category_detail("Weather Protection", "1")
+
+    assert result.category == "Weather Protection"
+    assert result.needs_clarification is False
+    assert "Weather Protection" in result.message
+    assert "rain shells" in result.message.lower()
 
 
 def test_recommend_category_does_not_invent_specific_products():
-    result = recommend_category("I need a tent for camping")
+    result = recommend_category_detail("Camping Gear", "1")
 
     assert "sku" not in result.message.lower()
     assert "model" not in result.message.lower()

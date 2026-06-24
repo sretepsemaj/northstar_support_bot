@@ -4,3 +4,6 @@ __pycache__/
 .pytest_cache/
 .env
 .DS_Store
+northstar_original_video.mov
+northstar_demo_video.mp4
+northstar_support_bot_submission.txt
